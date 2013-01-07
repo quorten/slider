@@ -1,0 +1,45 @@
+/* Sound Studio resource script.
+   This file is in Public Domain.  */
+
+/* #ifdef HAVE_CONFIG_H */
+#  include <config.h>
+/* #endif */
+
+#include <windows.h>
+
+
+101 ICON "../svgs/sndstud.ico"
+
+1 VERSIONINFO
+FILEVERSION		WIN_VERSION
+PRODUCTVERSION	WIN_VERSION
+/* For those who are interested, you should specify VS_FF_PRIVATEBUILD
+for file flags and the StringFileInfo block should contain a
+PrivateBuild string.  */
+FILEFLAGSMASK		0
+FILEFLAGS		0
+FILEOS			VOS__WINDOWS32
+FILETYPE		VFT_APP
+FILESUBTYPE		VFT2_UNKNOWN
+{			
+	BLOCK "StringFileInfo"
+	{
+		BLOCK "040904E4"
+		{
+			//VALUE "Comments"
+			VALUE "CompanyName", "Andrew Makousky"
+			VALUE "FileDescription", "Sound Studio"
+			VALUE "FileVersion", VERSION
+			VALUE "InternalName", "Sound Studio"
+			VALUE "LegalCopyright", "Copyright © 2011 Andrew Makousky"
+			//VALUE "LegalTrademarks"
+			VALUE "OriginalFilename", "sndstud.exe"
+			VALUE "ProductName", "Sound Studio"
+			VALUE "ProductVersion", PACKAGE_VERSION
+		}
+	}
+	BLOCK "VarFileInfo"
+	{
+		VALUE "Translation", 0x0409, 1252
+	}
+}
