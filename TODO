@@ -1,0 +1,16 @@
+* Improve the documentation infrastructure.
+
+* Finish the Spanish installer strings.
+
+* Implement audio playback and dynamic editing while listening to the
+  sound using PortAudio.
+
+* Add a console interface.
+
+* Make Sound Studio usable to people who may be visually impaired or
+  blind.
+
+* Improve the "Normalize Amplitudes" calculation.
+
+* For fun: how to cut out every single piece of source code until the
+  absolute basics are reached.
