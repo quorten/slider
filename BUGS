@@ -1,0 +1,15 @@
+Bugs in Sound Studio
+********************
+
+* The code that loads a Sound Studio project file is not robust enough
+  to handle errors in the input.
+
+* The precision sliders in the user interface can be jumpy and
+  imprecise.
+
+* The fractional position of the window divider in the user interface
+  is not consistent under resizes.
+
+* Moving the application's main window causes the window divider
+  position to be recalculated and everything in the window to be
+  redrawn.
