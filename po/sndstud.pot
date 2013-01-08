@@ -1,0 +1,138 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Andrew Makousky
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: andrew@home-dell-2300\n"
+"POT-Creation-Date: 2013-01-08 05:36-0600\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/interface.c:99
+msgid "Sound Studio"
+msgstr ""
+
+#: src/interface.c:115
+msgid "Save"
+msgstr ""
+
+#: src/interface.c:120
+msgid "Export"
+msgstr ""
+
+#: src/interface.c:125
+msgid "Play"
+msgstr ""
+
+#: src/interface.c:130
+msgid "Stop"
+msgstr ""
+
+#: src/interface.c:139 src/interface.c:324
+msgid "Fundamental Set: "
+msgstr ""
+
+#: src/interface.c:308
+msgid "1st Harmonic Drop"
+msgstr ""
+
+#: src/interface.c:314 src/interface.c:775
+msgid "Multiply Amplitudes"
+msgstr ""
+
+#: src/interface.c:329 src/interface.c:384 src/interface.c:441
+#: src/interface.c:472 src/interface.c:520
+msgid "Add"
+msgstr ""
+
+#: src/interface.c:334 src/interface.c:389 src/interface.c:446
+#: src/interface.c:477 src/interface.c:525
+msgid "Remove"
+msgstr ""
+
+#: src/interface.c:352
+msgid "Fundamental Frequency: "
+msgstr ""
+
+#: src/interface.c:379 src/interface.c:515
+msgid "Precision Slider: "
+msgstr ""
+
+#: src/interface.c:420
+msgid "Harmonic "
+msgstr ""
+
+#: src/interface.c:436
+msgid "Harmonic Window: "
+msgstr ""
+
+#: src/interface.c:467
+msgid "Harmonic: "
+msgstr ""
+
+#: src/interface.c:491
+msgid "Amplitude: "
+msgstr ""
+
+#: src/interface.c:790
+msgid "Maximum amplitude: "
+msgstr ""
+
+#: src/callbacks.c:173
+msgid "Save File"
+msgstr ""
+
+#: src/callbacks.c:197
+msgid "Export File"
+msgstr ""
+
+#: src/callbacks.c:223 src/callbacks.c:236
+#, c-format
+msgid "Sorry, but playback is not yet supported."
+msgstr ""
+
+#: src/callbacks.c:224 src/callbacks.c:237
+msgid "Not implemented"
+msgstr ""
+
+#: src/support.c:123 src/support.c:147
+#, possible-c-format
+msgid "Couldn't find pixmap file: %s"
+msgstr ""
+
+#: src/wv_editors.c:607
+msgid ""
+"; This is a Nyquist Lisp file.\n"
+"; You can use this with Audacity to generate a waveform.\n"
+"; To do this, select a portion of time on a track, then go to \"Effect\n"
+"; > Nyquist Prompt...\" and paste the contents of this file in.\n"
+msgstr ""
+
+#: src/wv_editors.c:850
+msgid ""
+"You must not have any fundamental frequencies that are harmonics of each "
+"other."
+msgstr ""
+
+#: src/wv_editors.c:855
+msgid "User error"
+msgstr ""
+
+#. Translators: this message is only shown if the total number
+#. of points exceeds 1000.
+#: src/wv_editors.c:891
+#, possible-c-format
+msgid "Are you sure you want to sample %u points?"
+msgstr ""
+
+#: src/wv_editors.c:898
+msgid "Confirm"
+msgstr ""
