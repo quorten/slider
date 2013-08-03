@@ -1,3 +1,12 @@
+/* Use binary relocation code suitable for FreeBSD. */
+/* #undef BR_FREEBSD */
+
+/* Use Linux procfs for binary relocation. */
+/* #undef BR_LINUX_PROCFS */
+
+/* Enable binary relocation support. */
+/* #undef ENABLE_BINRELOC */
+
 /* always defined to indicate that i18n is enabled */
 #define ENABLE_NLS 1
 
@@ -66,6 +75,12 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
+
+/* Use JACK for audio output. */
+/* #undef USE_JACK */
+
+/* Use PortAudio for audio output. */
+#define USE_PORTAUDIO 1
 
 /* Version number of package */
 #define VERSION "@VERSION@"

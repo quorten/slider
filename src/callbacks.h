@@ -1,6 +1,6 @@
-/* GTK+ widget signal handler declarations.
+/* GTK+ widget signal handlers.
 
-Copyright (C) 2011, 2012 Andrew Makousky
+Copyright (C) 2011, 2012, 2013 Andrew Makousky
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,14 +30,15 @@ DAMAGE.  */
 
 /**
  * @file
- * GTK+ widget signal handler declarations.
+ * GTK+ widget signal handlers.
  *
  * Most of the functions in this file are not deserving of very heavy
  * documentation.  All of the signal handlers are connected to their
- * signals in interface.c, and the function calling form of each
+ * signals in interface.h, and the function calling form of each
  * signal handler is dictated by the signal that it is connected to.
  * Therefore, it is mostly unnecessary to document the signal
- * handlers.  However, the parameter @a user_data is documented
+ * handlers, as most of their behavior is explained in the GTK+
+ * documentation.  However, the parameter @a user_data is documented
  * whenever it is expected to be a non-NULL value in any of the signal
  * handlers.
  */
@@ -45,21 +46,28 @@ DAMAGE.  */
 #ifndef CALLBACKS_H
 #define CALLBACKS_H
 
-#include <gtk/gtk.h>
+#include "wv_editors.h"
 
-extern double max_ypt;
+extern gchar *last_folder;
+extern gchar *loaded_fname;
+extern float max_ypt;
 
+void manual_win_destroy (GtkObject * object, gpointer user_data);
+gboolean check_save (gboolean closing);
+gboolean save_as (void);
+void open_file (void);
+gboolean main_window_delete (GtkWidget * widget, gpointer user_data);
+void activate_action (GtkAction * action);
 gboolean
 wavrnd_expose (GtkWidget * widget,
 	       GdkEventExpose * event, gpointer user_data);
-void b_save_clicked (GtkButton * button, gpointer user_data);
-void b_export_clicked (GtkButton * button, gpointer user_data);
+void b_save_as_clicked (GtkButton * button, gpointer user_data);
 void b_play_clicked (GtkButton * button, gpointer user_data);
-void b_stop_clicked (GtkButton * button, gpointer user_data);
+void agc_vol_changed (GtkRange * range, gpointer user_data);
 void cb_fund_set_changed (GtkComboBox * combobox, gpointer user_data);
-gboolean
-wv_edit_div_configure (GtkWidget * widget,
-		       GdkEventConfigure * event, gpointer user_data);
+void
+wv_edit_div_allocate (GtkWidget * widget,
+		      GtkAllocation * allocation, gpointer user_data);
 void harmc_one_drop_clicked (GtkButton * button, gpointer user_data);
 void mult_amps_clicked (GtkButton * button, gpointer user_data);
 void fundset_add_clicked (GtkButton * button, gpointer user_data);
@@ -97,5 +105,7 @@ void precslid_value_changed (GtkHScrollbar * scrollbar, gpointer user_data);
 void mult_amp_entry_activate (GtkEntry * entry, gpointer user_data);
 gboolean mult_amp_entry_focus_out (GtkEntry * entry,
 				   GdkEventFocus * event, gpointer user_data);
+void update_slider_bases (GtkEntry * entry, Wv_Editor_Data * cur_data,
+			  gboolean freq_sliders);
 
 #endif /* not CALLBACKS_H */

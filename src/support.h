@@ -1,6 +1,6 @@
-/* Miscellaneous support function declarations.
+/* Miscellaneous support functions.
 
-Copyright (C) 2011, 2012 Andrew Makousky
+Copyright (C) 2011, 2012, 2013 Andrew Makousky
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,17 +30,11 @@ DAMAGE.  */
 
 /**
  * @file
- * Miscellaneous support function declarations.
+ * Miscellaneous support functions.
  */
 
 #ifndef SUPPORT_H
 #define SUPPORT_H
-
-#ifdef HAVE_CONFIG_H
-#  include <config.h>
-#endif
-
-#include <gtk/gtk.h>
 
 /*
  * Standard gettext macros.

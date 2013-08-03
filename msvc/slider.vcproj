@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="sndstud"
+	Name="slider"
 	ProjectGUID="{E3BE850E-9BF3-43DE-AE2B-261E75AE05CB}"
 	>
 	<Platforms>
@@ -41,7 +41,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Debug/sndstud.tlb"
+				TypeLibraryName=".\Debug/slider.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -52,7 +52,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				PrecompiledHeaderFile=".\Debug/sndstud.pch"
+				PrecompiledHeaderFile=".\Debug/slider.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
@@ -74,13 +74,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="gtk-win32-2.0.lib gdk-win32-2.0.lib atk-1.0.lib gdk_pixbuf-2.0.lib pangowin32-1.0.lib pango-1.0.lib gobject-2.0.lib gmodule-2.0.lib glib-2.0.lib intl.lib iconv.lib"
-				OutputFile=".\Debug/sndstud.exe"
+				AdditionalDependencies="gtk-win32-2.0.lib gdk-win32-2.0.lib atk-1.0.lib gdk_pixbuf-2.0.lib pangowin32-1.0.lib pango-1.0.lib gobject-2.0.lib gmodule-2.0.lib glib-2.0.lib intl.lib iconv.lib portaudio_x86.lib"
+				OutputFile=".\Debug/slider.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(GTK_BASEPATH)/lib"
+				AdditionalLibraryDirectories="./;&quot;$(GTK_BASEPATH)/lib&quot;"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/sndstud.pdb"
+				ProgramDatabaseFile=".\Debug/slider.pdb"
 				SubSystem="1"
 				TargetMachine="1"
 			/>
@@ -89,7 +89,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="sndstud.manifest"
+				AdditionalManifestFiles="slider.manifest"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -97,7 +97,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Debug/sndstud.bsc"
+				OutputFile=".\Debug/slider.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -140,7 +140,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Release/sndstud.tlb"
+				TypeLibraryName=".\Release/slider.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -152,7 +152,7 @@
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				PrecompiledHeaderFile=".\Release/sndstud.pch"
+				PrecompiledHeaderFile=".\Release/slider.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
@@ -173,12 +173,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="gtk-win32-2.0.lib gdk-win32-2.0.lib atk-1.0.lib gdk_pixbuf-2.0.lib pangowin32-1.0.lib pango-1.0.lib gobject-2.0.lib gmodule-2.0.lib glib-2.0.lib intl.lib iconv.lib"
-				OutputFile=".\Release/sndstud.exe"
+				AdditionalDependencies="gtk-win32-2.0.lib gdk-win32-2.0.lib atk-1.0.lib gdk_pixbuf-2.0.lib pangowin32-1.0.lib pango-1.0.lib gobject-2.0.lib gmodule-2.0.lib glib-2.0.lib intl.lib iconv.lib portaudio_x86.lib"
+				OutputFile=".\Release/slider.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(GTK_BASEPATH)/lib"
-				ProgramDatabaseFile=".\Release/sndstud.pdb"
+				AdditionalLibraryDirectories="./;&quot;$(GTK_BASEPATH)/lib&quot;"
+				ProgramDatabaseFile=".\Release/slider.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -187,7 +187,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="sndstud.manifest"
+				AdditionalManifestFiles="slider.manifest"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -195,7 +195,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Release/sndstud.bsc"
+				OutputFile=".\Release/slider.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -218,6 +218,10 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
+			<File
+				RelativePath="..\src\audio.c"
+				>
+			</File>
 			<File
 				RelativePath="..\src\callbacks.c"
 				>
@@ -338,6 +342,10 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath="..\src\audio.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\callbacks.h"
 				>
 			</File>
@@ -371,11 +379,7 @@
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 			>
 			<File
-				RelativePath=".\sndstud.manifest"
-				>
-			</File>
-			<File
-				RelativePath="..\src\sndstud.rc"
+				RelativePath="..\src\app.rc"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -383,7 +387,7 @@
 					<Tool
 						Name="VCResourceCompilerTool"
 						PreprocessorDefinitions=""
-						AdditionalIncludeDirectories="\mingw\sound-studio\src"
+						AdditionalIncludeDirectories="\mingw\slider\src"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -392,9 +396,13 @@
 					<Tool
 						Name="VCResourceCompilerTool"
 						PreprocessorDefinitions=""
-						AdditionalIncludeDirectories="\mingw\sound-studio\src"
+						AdditionalIncludeDirectories="\mingw\slider\src"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\slider.manifest"
+				>
 			</File>
 		</Filter>
 	</Files>

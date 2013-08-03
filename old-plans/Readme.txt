@@ -4,7 +4,10 @@ IMPORTANT!!!!!!!!!IMPORTANT!!!!!!!!!IMPORTANT!!!!!!!!!IMPORTANT!!!!!!!
 			      IMPORTANT!
 
 This is an OLD README file kept only for your interest.  Do not take
-it seriously!  This file was written after I have learned extensively
+it seriously!  In fact, this README is so old that in fact this is not
+really from Sound Studio 0.1 but from an older version that was so old
+it wasn't really versioned correctly.  Maybe it should have been
+version -0.1.  This file was written after I have learned extensively
 about the GNU Project and have been using some GNU tools, but before I
 started using Glade, Autoconf, and Automake that have automatically
 brought me in to writing software in the form of Free Software

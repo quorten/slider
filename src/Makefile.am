@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-# Copyright (C) 2011, 2012 Andrew Makousky
+# Copyright (C) 2011, 2012, 2013 Andrew Makousky
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,26 +33,28 @@ EXTRA_DIST = .gdbinit exparray.gdb
 INCLUDES = \
 	-DPACKAGE_PREFIX=\""$(prefix)"\" \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
-	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
-	@PACKAGE_CFLAGS@
+	-DPACKAGE_LOCALE_DIR=\""$(localedir)"\" \
+	$(PACKAGE_CFLAGS)
 
-bin_PROGRAMS = sndstud
+bin_PROGRAMS = slider
 
-sndstud_SOURCES = \
+slider_SOURCES = \
+	binreloc.c binreloc.h \
 	main.c doxygen.h \
 	support.c support.h \
 	interface.c interface.h \
 	callbacks.c callbacks.h \
 	wv_editors.c wv_editors.h \
 	file_business.c file_business.h \
+	audio.c audio.h \
 	gawrapper.h
 
-sndstud_LDADD = @PACKAGE_LIBS@ $(INTLLIBS)
+slider_LDADD = $(PACKAGE_LIBS) $(INTLLIBS)
 
 if WITH_WIN32
-sndstud-rc.o: sndstud.rc ../svgs/sndstud.ico
+app.o: app.rc ../svgs/app.ico
 	$(RC) $(DEFS) $(DEFAULT_INCLUDES) -O coff -o $@ $<
 
-sndstud_SOURCES += sndstud.rc
-sndstud_LDADD += sndstud-rc.o
+slider_SOURCES += app.rc
+slider_LDADD += app.o
 endif

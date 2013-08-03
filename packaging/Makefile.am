@@ -29,25 +29,25 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 EXTRA_DIST = 2.12.10-dist.txt \
-	sndstud.nsi english.nsh spanish.nsh license.rtf \
+	installer.nsi english.nsh spanish.nsh license.rtf \
 	bannrbmp.bmp features.txt uuids.txt Property.idt.in \
-	Directory.idt.cat Icon.idt RemoveFile.idt.in Shortcut.idt.in
+	Directory.idt.cat Icon.idt Shortcut.idt.in
 
 if WITH_WIN32
 
 if MAINTAINER_MODE
-noinst_DATA = sndstud-$(VERSION)-setup.exe
+noinst_DATA = slider-$(VERSION)-setup.exe
 endif
 
 MOSTLYCLEANFILES = \
 	ls-r.txt ls-r2.txt File.idt Directory.idt Component.idt \
 	Feature.idt FeatureComponents.idt Media.idt Directory.idt.old \
-	RemoveFile.idt Shortcut.idt Component.idt.old archive.cab
+	Shortcut.idt archive.cab
 
-CLEANFILES = sndstud-$(VERSION)-setup.exe sndstud-$(VERSION).msi
+CLEANFILES = slider-$(VERSION)-setup.exe slider-$(VERSION).msi
 
-nsis: sndstud-$(VERSION)-setup.exe
-msi: sndstud-$(VERSION).msi
+nsis: slider-$(VERSION)-setup.exe
+msi: slider-$(VERSION).msi
 
 2.12.10-dist: gtk+-bundle-2.12.10.zip
 	mkdir $@
@@ -55,6 +55,13 @@ msi: sndstud-$(VERSION).msi
 	  `cat ../2.12.10-dist.txt`
 	echo 'gtk-theme-name = "MS-Windows"' > \
 	  2.12.10-dist/etc/gtk-2.0/gtkrc
+	if [ -f libportaudio-2.dll ]; then \
+	  cp -p libportaudio-2.dll $@/bin/; \
+	elif [ -f portaudio_x64.dll ]; then \
+	  cp -p portaudio_x64.dll $@/bin/; \
+	elif [ -f portaudio_x86.dll ]; then \
+	  cp -p portaudio_x86.dll $@/bin/; \
+	fi
 
 instdir:
 	tmpinst=`pwd`/instdir && \
@@ -64,12 +71,12 @@ instdir:
 	  rmdir instdir/lib; \
 	fi
 
-sndstud-$(VERSION)-setup.exe: sndstud.nsi english.nsh spanish.nsh \
+slider-$(VERSION)-setup.exe: installer.nsi english.nsh spanish.nsh \
   license.rtf instdir 2.12.10-dist
 	if [ -n "$(TEST_INST)" ]; then \
-	  makensis -DVERSION=$(VERSION) -DTEST_INST sndstud.nsi; \
+	  makensis -DVERSION=$(VERSION) -DTEST_INST installer.nsi; \
 	else \
-	  makensis -DVERSION=$(VERSION) sndstud.nsi; \
+	  makensis -DVERSION=$(VERSION) installer.nsi; \
 	fi
 
 ls-r.txt: 2.12.10-dist
@@ -85,7 +92,7 @@ uuids.txt:
 
 File.idt Directory.idt Component.idt Feature.idt \
 FeatureComponents.idt Media.idt: features.txt uuids.txt ls-r.txt ls-r2.txt
-	msi-tool -r -d"sndstud|Sound Studio" ls-r.txt ls-r2.txt
+	msi-tool -r -d"slider|Slider Wave Editor" ls-r.txt ls-r2.txt
 
 archive.cab: File.idt
 	if [ -n "$(TEST_INST)" ]; then \
@@ -96,39 +103,26 @@ archive.cab: File.idt
 	mv 2.12.10-dist/archive.cab .
 	rm -rf 2.12.10-dist instdir
 
-sndstud-$(VERSION).msi: Property.idt File.idt Directory.idt Component.idt \
+slider-$(VERSION).msi: Property.idt File.idt Directory.idt Component.idt \
   Feature.idt FeatureComponents.idt Media.idt archive.cab Schema.msi
 # Prepare tables that the installer will use to create shortcuts.
 	mv Directory.idt Directory.idt.old
 	cat Directory.idt.old Directory.idt.cat > Directory.idt
 	mkdir Icon
-	cp ../svgs/sndstud.ico Icon/sndstud_icon.exe.ibd
-# Note: The component manipulation code is an inelegant solution to
-# get the shortcut to the user manual to work.
-	mv Component.idt Component.idt.old
-	SSCOMP=`grep -F 'sndstud.exe' File.idt | cut -f2`; \
-	  HELPNAME=`grep -F 'help.txt' File.idt | cut -f1`; \
-	  HELPCOMP=`grep -F 'help.txt' File.idt | cut -f2`; \
-	  HCLINENUM=`grep -n -F $$HELPCOMP Component.idt.old | cut -d: -f1`; \
-	  HCOLD=`sed -ne $${HCLINENUM}p Component.idt.old`; \
-	  sed -e $${HCLINENUM}d Component.idt.old > Component.idt; \
-	  echo "`echo \"$$HCOLD\" | cut -f1-5`"$$'\t'$$HELPNAME >> \
-	    Component.idt; \
-	  sed -e s/SndStudComp/$${SSCOMP}/g -e s/SndStudFeat/ft1/g \
-	    -e s/HelpComp/$${HELPCOMP}/g \
-	    Shortcut.idt.in > Shortcut.idt; \
-	  sed -e s/SndStudComp/$${SSCOMP}/g RemoveFile.idt.in > \
-	    RemoveFile.idt
+	cp ../svgs/app.ico Icon/slider_icon.exe.ibd
+	SSCOMP=`grep -F 'slider.exe' File.idt | cut -f2`; \
+	  sed -e s/SliderComp/$${SSCOMP}/g -e s/SliderFeat/ft1/g \
+	    Shortcut.idt.in > Shortcut.idt
 # Build the installer.
 	cp Schema.msi $@
-	msiinfo $@ -t "Installation Database" -j "Sound Studio" \
+	msiinfo $@ -t "Installation Database" -j "Slider Wave Editor" \
 	  -a "Andrew Makousky" -k "Installer, MSI, Database" \
-	  -o "This installer database contains the logic and data required to install Sound Studio." \
+	  -o "This installer database contains the logic and data required to install Slider Wave Editor." \
 	  -p "Intel;1033" -v {`uuidgen -c`} -g 110 -w 2 -u 0
 	msidb -d$@ -f`pwd | sed -e 's.^\(\|/cygdrive\)/\([[:alpha:]]\)/.\2:/.g' -e 's./.\\\\.g'` \
 	  -i Property.idt Component.idt Directory.idt \
 	  Feature.idt FeatureComponents.idt File.idt Media.idt \
-	  Icon.idt Shortcut.idt RemoveFile.idt
+	  Icon.idt Shortcut.idt
 	msidb -d$@ -aarchive.cab
 	! msival2 $@ "C:\\Program Files\\MsiVal2\\darice.cub" | grep -e 'ERROR'
 

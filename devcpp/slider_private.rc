@@ -1,4 +1,4 @@
 // THIS FILE WILL BE OVERWRITTEN BY DEV-C++!
 // DO NOT EDIT!
 
-#include "../src/sndstud.rc"
+#include "../src/app.rc"

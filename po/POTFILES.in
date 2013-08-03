@@ -5,3 +5,4 @@ src/interface.c
 src/callbacks.c
 src/support.c
 src/wv_editors.c
+src/audio.c

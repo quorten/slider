@@ -1,6 +1,6 @@
 /* Functions for the wave editors.
 
-Copyright (C) 2011, 2012 Andrew Makousky
+Copyright (C) 2011, 2012, 2013 Andrew Makousky
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -28,27 +28,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGE.  */
 
-/**
- * @file
- * Functions for the wave editors.
- *
- * Not only does this file contain functions for the wave editors, it
- * also contains user interface helper functions and functions that
- * prepare for file handling.  However, some of the file handling code
- * was moved to file_business.c to solve problems with different
- * Microsoft runtime versions when this program is compiled with
- * Microsoft Visual Studio.
- */
-
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
 
-#include <gtk/gtk.h>
-
+#include <stdio.h>
+#include <errno.h>
 #include <math.h>
 #include <locale.h>
 #include <string.h>
+
+#include <gtk/gtk.h>
 
 #include "interface.h"
 #include "callbacks.h"
@@ -63,10 +53,14 @@ DAMAGE.  */
  * windows for a fundamental frequency and another array that
  * references all harmonics.
  */
-Wv_Fund_Freq_array *wv_all_freqs;
+Wv_Fund_Freq_array *wv_all_freqs = NULL;
 
 /** Current fundamental set.  */
-unsigned g_fund_set;
+unsigned g_fund_set = 0;
+
+/** Keeps track of whether the fundamental set selection combo box
+    was initialized or not.  */
+static gboolean combo_init = FALSE;
 
 /* Even though the original application was planned to have a command
    called '1st Harmonic Drop', it turns out that the original idea is
@@ -78,14 +72,16 @@ unsigned g_fund_set;
  * Initializes ::wv_all_freqs.
  *
  * This function should only be called whenever a new file is loaded.
- * Since Sound Studio currently only supports loading one file at a
- * time, this function is only called during program startup.
+ * Since Slider currently only supports loading one file at a time,
+ * this function is only called during program startup.
  */
 void
 init_wv_editors (void)
 {
   wv_all_freqs = (Wv_Fund_Freq_array *)
     g_array_new (FALSE, FALSE, sizeof (Wv_Fund_Freq));
+  g_fund_set = 0;
+  combo_init = FALSE;
 }
 
 /**
@@ -97,6 +93,11 @@ void
 free_wv_editors (void)
 {
   unsigned i;
+  if (cb_fund_set != NULL)
+    {
+      for (i = 0; i < wv_all_freqs->len; i++)
+	gtk_combo_box_remove_text (GTK_COMBO_BOX (cb_fund_set), 0);
+    }
   for (i = 0; i < wv_all_freqs->len; i++)
     {
       unsigned j;
@@ -118,6 +119,7 @@ free_wv_editors (void)
       g_array_free ((GArray *) wv_all_freqs->d[i].wv_editors, TRUE);
     }
   g_array_free ((GArray *) wv_all_freqs, TRUE);
+  wv_all_freqs = NULL;
 }
 
 /**
@@ -141,7 +143,8 @@ free_slider_data (Slide_Data_Ptr_array *sliders)
  * Adds a wave editor window.
  *
  * Inserts a wave editor window before the given index, viewing the
- * given data.
+ * given data.  The coresponding widgets are not created until
+ * create_wvedit_holder() is called.
  * @param fund_freq the fundamental frequency set to work with
  * @param index zero-based index of the wave editor window to insert
  * before
@@ -181,9 +184,7 @@ add_wv_editor (unsigned fund_freq, unsigned index, Wv_Data *last_wv_data)
 	cur_editor = wv_all_freqs->d[fund_freq].wv_editors->d[i];
 	cur_editor->index = i;
 	for (j = 0; j < cur_editor->amp_sliders->len; j++)
-	  {
-	    cur_editor->amp_sliders->d[j]->parent_index = i;
-	  }
+	  cur_editor->amp_sliders->d[j]->parent_index = i;
       }
   }
 }
@@ -191,7 +192,7 @@ add_wv_editor (unsigned fund_freq, unsigned index, Wv_Data *last_wv_data)
 /**
  * Deletes a wave editor window.
  *
- * Any associated GtkWidgets will be destroyed when the wave editor
+ * Any associated GTK+ widgets will be destroyed when the wave editor
  * window is removed.
  * @param fund_freq the fundamental frequency set to work with
  * @param index the index of the wave editor window to remove
@@ -225,9 +226,7 @@ remove_wv_editor (unsigned fund_freq, unsigned index)
 	cur_editor = wv_all_freqs->d[fund_freq].wv_editors->d[i];
 	cur_editor->index = i;
 	for (j = 0; j < cur_editor->amp_sliders->len; j++)
-	  {
-	    cur_editor->amp_sliders->d[j]->parent_index = i;
-	  }
+	  cur_editor->amp_sliders->d[j]->parent_index = i;
       }
   }
 }
@@ -284,8 +283,8 @@ add_harmonic (unsigned fund_freq)
  *
  * Whenever a harmonic is not removed from the end of the list, any
  * references to later harmonics will have to be changed.
- * @param fund_freq the fundamental frequency set to work
- * with @param index zero-based index of the harmonic to remove
+ * @param fund_freq the fundamental frequency set to work with
+ * @param index zero-based index of the harmonic to remove
  */
 void
 remove_harmonic (unsigned fund_freq, unsigned index)
@@ -312,12 +311,12 @@ remove_harmonic (unsigned fund_freq, unsigned index)
 
   if (wv_all_freqs->d[fund_freq].harmonics->len == 0)
     {
-      /* Remove all editor windows */
+      /* Remove all editor windows.  */
       while (wv_all_freqs->d[fund_freq].wv_editors->len > 0)
 	    remove_wv_editor (fund_freq, 0);
     }
 
-  /* Recalculate group indices as necessary */
+  /* Recalculate group indices as necessary.  */
   for (i = index; i < wv_all_freqs->d[fund_freq].harmonics->len; i++)
       wv_all_freqs->d[fund_freq].harmonics->d[i].group_idx = i;
 }
@@ -338,11 +337,12 @@ add_fund_freq (void)
   g_array_set_size ((GArray *) wv_all_freqs, index + 1);
   wv_all_freqs->d[index].fund_freq = 440.0;
   wv_all_freqs->d[index].amplitude = 1.0;
+  wv_all_freqs->d[index].phase_pos = 0.0;
   wv_all_freqs->d[index].fund_editor.widget = NULL;
   wv_all_freqs->d[index].harmonics = (Wv_Data_array *)
     g_array_new (FALSE, FALSE, sizeof (Wv_Data));
 
-  /* Initialize the fundamental frequency editor window */
+  /* Initialize the fundamental frequency editor window.  */
   wv_all_freqs->d[index].fund_editor.widget = NULL;
   wv_all_freqs->d[index].fund_editor.data = NULL;
   wv_all_freqs->d[index].fund_editor.freq_sliders = (Slide_Data_Ptr_array *)
@@ -374,7 +374,7 @@ remove_fund_freq (unsigned index)
   free_slider_data (wv_all_freqs->d[index].fund_editor.amp_sliders);
   g_array_free ((GArray *) wv_all_freqs->d[index].fund_editor.amp_sliders,
 		TRUE);
-  /* Destroy the members of the wave editors array first */
+  /* Destroy the members of the wave editors array first.  */
   while (wv_all_freqs->d[index].wv_editors->len > 0)
     remove_wv_editor (index, 0);
   g_array_free ((GArray *) wv_all_freqs->d[index].wv_editors, TRUE);
@@ -404,7 +404,6 @@ restore_prec_sliders (void)
       gdouble last_value;
       sd_block = wv_all_freqs->d[g_fund_set].fund_editor.freq_sliders->d[j];
       last_value = sd_block->last_value;
-      /* Setting an adjustment with a non-zero page size is deprecated.  */
       hscrollbar =
 	gtk_hscrollbar_new (GTK_ADJUSTMENT
 		 (gtk_adjustment_new (last_value, 0, 21, 0.1, 1.0, 1.0)));
@@ -422,7 +421,6 @@ restore_prec_sliders (void)
       gdouble last_value;
       sd_block = wv_all_freqs->d[g_fund_set].fund_editor.amp_sliders->d[j];
       last_value = sd_block->last_value;
-      /* Setting an adjustment with a non-zero page size is deprecated.  */
       hscrollbar =
 	gtk_hscrollbar_new (GTK_ADJUSTMENT
 		(gtk_adjustment_new (last_value, 0, 21, 0.1, 1.0, 1.0)));
@@ -445,7 +443,6 @@ restore_prec_sliders (void)
 	  sd_block =
 	    wv_all_freqs->d[g_fund_set].wv_editors->d[i]->amp_sliders->d[j];
 	  last_value = sd_block->last_value;
-	  /* Setting an adjustment with a non-zero page size is deprecated.  */
 	  hscrollbar =
 	    gtk_hscrollbar_new (GTK_ADJUSTMENT
 		(gtk_adjustment_new (last_value, 0, 21, 0.1, 1.0, 1.0)));
@@ -471,7 +468,6 @@ void
 select_fund_freq (unsigned fund_freq)
 {
   /* Create all the editor widgets */
-  static gboolean combo_init = FALSE;
   gboolean sliders_init;
   unsigned i;
   g_fund_set = fund_freq;
@@ -499,10 +495,10 @@ select_fund_freq (unsigned fund_freq)
 			  FALSE, FALSE, 0);
     }
 
-  if (combo_init == FALSE)
+  if (!combo_init)
     {
       combo_init = TRUE;
-      /* Add combo box entries */
+      /* Add combo box entries.  */
       for (i = 0; i < wv_all_freqs->len; i++)
 	{
 	  unsigned cur_fund;
@@ -515,7 +511,7 @@ select_fund_freq (unsigned fund_freq)
 	}
     }
 
-  if (sliders_init == FALSE)
+  if (!sliders_init)
     restore_prec_sliders ();
 }
 
@@ -530,7 +526,7 @@ select_fund_freq (unsigned fund_freq)
 void
 unselect_fund_freq (unsigned fund_freq)
 {
-  /* Destroy all the editor widgets */
+  /* Destroy all the editor widgets.  */
   unsigned i;
   gtk_widget_destroy (wv_all_freqs->d[fund_freq].fund_editor.widget);
   wv_all_freqs->d[fund_freq].fund_editor.widget = NULL;
@@ -542,12 +538,13 @@ unselect_fund_freq (unsigned fund_freq)
 }
 
 /**
- * Saves a Sound Studio project file.
+ * Saves a Slider Wave Editor project file.
  *
  * @param filename the file name to save to
+ * @return TRUE if save was successful, FALSE otherwise
  */
-void
-save_ss_project (char *filename)
+gboolean
+save_sliw_project (char *filename)
 {
   FILE *fp;
   char *locale_temp;
@@ -555,17 +552,18 @@ save_ss_project (char *filename)
 
   fp = fopen (filename, "w");
   if (fp == NULL)
-    return;
+    goto error;
 
   fputs (
-"# This is a Sound Studio project file.  If you change this identifier,\n"
-"# you will not be able to open this file in Sound Studio.\n"
+"# This is a Slider Wave Editor project file.  Comments are only\n"
+"# allowed at the beginning of a project file, and they are not\n"
+"# preserved during file loading and saving in Slider.\n"
 "#\n"
 "# A harmonic is specified as a pair of numbers.  The first number is\n"
 "# the harmonic number, and the second is the amplitude.\n", fp);
 
   /* The project file's contents are written in English to prevent
-     compatibility problems with Sound Studio running in different
+     compatibility problems with Slider running in different
      languages.  */
   locale_temp = setlocale (LC_NUMERIC, NULL);
   last_locale = (char *) g_malloc (strlen (locale_temp) + 1);
@@ -580,20 +578,37 @@ save_ss_project (char *filename)
 
   setlocale (LC_NUMERIC, last_locale);
   g_free (last_locale);
-  fclose (fp);
+  if (fclose (fp) == EOF)
+    goto error;
+  return TRUE;
+
+ error:
+  {
+    GtkWidget *dialog;
+    dialog = gtk_message_dialog_new_with_markup
+      (GTK_WINDOW (main_window),
+       GTK_DIALOG_DESTROY_WITH_PARENT,
+       GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
+       _("<b><big>An error occurred while saving your " \
+	 "file.</big></b>\n\n%s"),
+       strerror(errno));
+    gtk_dialog_run (GTK_DIALOG (dialog));
+    gtk_widget_destroy (dialog);
+    return FALSE;
+  }
 }
 
 /**
- * Exports a Sound Studio project.
+ * Exports a Slider Wave Editor project.
  *
  * The exported file is represented as a series of waveforms defined
  * only by frequency and amplitude in the format of a Nyquist Lisp
  * script.  This function is intended to be used as an efficient way
- * to import Sound Studio sounds into other applications.
+ * to import Slider sounds into other applications.
  * @param filename the name of the file to export to
  */
 void
-export_ss_project (char *filename)
+export_sliw_project (char *filename)
 {
   FILE* fp;
   char *locale_temp;
@@ -601,7 +616,7 @@ export_ss_project (char *filename)
 
   fp = fopen (filename, "w");
   if (fp == NULL)
-    return;
+    goto error;
 
   fputs (_( \
 "; This is a Nyquist Lisp file.\n" \
@@ -626,55 +641,98 @@ export_ss_project (char *filename)
 
   setlocale (LC_NUMERIC, last_locale);
   g_free (last_locale);
-  fclose (fp);
+  if (fclose (fp) == EOF)
+    goto error;
+  return;
+
+ error:
+  {
+    GtkWidget *dialog;
+    dialog = gtk_message_dialog_new_with_markup
+      (GTK_WINDOW (main_window),
+       GTK_DIALOG_DESTROY_WITH_PARENT,
+       GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
+       _("<b><big>An error occurred while exporting your " \
+	 "file.</big></b>\n\n%s"),
+       strerror(errno));
+    gtk_dialog_run (GTK_DIALOG (dialog));
+    gtk_widget_destroy (dialog);
+    return;
+  }
 }
 
 /**
- * Loads a Sound Studio project file.
+ * Loads a Slider Wave Editor project file.
  *
- * Opens, reads, and parses a Sound Studio project file.  Sound Studio
- * project files are plain text files, typically saved with the .txt
- * extension.  Unfortunately, this code does not yet have syntax error
- * checking, as the original goal of this program was to write a
- * suitable program quickly.
- * @param filename the name of the file to load
+ * Opens, reads, and parses a Slider project file.  Slider project
+ * files are plain text files, typically saved with the .txt
+ * extension.  Note that parse error checking in this function is
+ * minimal, and non well-formed documents can result in false
+ * successful return status with incorrect data.  @param filename the
+ * name of the file to load @return TRUE on successful load, FALSE on
+ * error.
  */
-void
-load_ss_project (char *filename)
+gboolean
+load_sliw_project (char *filename)
 {
+  gboolean retval = FALSE;
   FILE *fp;
   char *locale_temp;
   char *last_locale;
   unsigned cur_fund;
-  char temp_buffer[100];
 
   fp = fopen (filename, "r");
   if (fp == NULL)
-    return;
+    {
+      GtkWidget *dialog;
+      dialog = gtk_message_dialog_new_with_markup
+	(NULL,
+	 GTK_DIALOG_DESTROY_WITH_PARENT,
+	 GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
+	 _("<b><big>Your file could not be opened.</big></b>\n\n" \
+	   "%s"),
+	 strerror(errno));
+      gtk_window_set_title (GTK_WINDOW (dialog), _("Slider Wave Editor"));
+      gtk_dialog_run (GTK_DIALOG (dialog));
+      gtk_widget_destroy (dialog);
+      return FALSE;
+    }
 
   /* The project file's contents are written in English to prevent
-     compatibility problems with Sound Studio running in different
+     compatibility problems with Slider running in different
      languages.  */
   locale_temp = setlocale (LC_NUMERIC, NULL);
   last_locale = (char *) g_malloc (strlen (locale_temp) + 1);
   strcpy (last_locale, locale_temp);
   setlocale (LC_NUMERIC, "C");
 
-  /* This code currently does not do error checking.  This must be
-     fixed!  */
-  while (fscanf (fp, "# %99[^\n]\n", temp_buffer));
-  fscanf (fp, "\nFundamental %u\n", &cur_fund);
+  { /* First skip the comments.  */
+    int ch;
+    while ((ch = getc (fp)) == '#')
+      while ((ch = getc (fp)) != EOF && ch != '\n');
+    if (ch == EOF)
+      goto cleanup;
+  }
+
+  if (fscanf (fp, "\nFundamental %u\n", &cur_fund) != 1)
+    goto cleanup;
   while (!feof (fp))
     {
       unsigned i, j;
       gboolean next_fundamental;
+      char test_buf[11];
       i = cur_fund - 1;
       add_fund_freq ();
       add_wv_editor (wv_all_freqs->len - 1, 0,
 		     &wv_all_freqs->d[i].harmonics->d[0]);
-      fscanf (fp, "Frequency: %g\n", &wv_all_freqs->d[i].fund_freq);
-      fscanf (fp, "Amplitude: %g\n", &wv_all_freqs->d[i].amplitude);
-      fscanf (fp, "Harmonics:");
+      if (fscanf (fp, "Frequency: %g\n", &wv_all_freqs->d[i].fund_freq) != 1 ||
+	  fscanf (fp, "Amplitude: %g\n", &wv_all_freqs->d[i].amplitude) != 1)
+	goto cleanup;
+      if (fscanf (fp, "%10c", test_buf) != 1)
+	goto cleanup;
+      test_buf[10] = '\0';
+      if (strcmp(test_buf, "Harmonics:"))
+	goto cleanup;
 
       j = 0;
       next_fundamental = FALSE;
@@ -685,30 +743,47 @@ load_ss_project (char *filename)
 	  scan_status = fscanf (fp, " %u, %g;",
 				&wv_all_freqs->d[i].harmonics->d[j].harmc_num,
 				&wv_all_freqs->d[i].harmonics->d[j].amplitude);
-	  if (scan_status <= 0) /* No harmonics read */
+	  if (scan_status != 2) /* No harmonics read */
 	    remove_harmonic (i, wv_all_freqs->d[i].harmonics->len - 1);
-	  if (fscanf (fp, "\nFundamental %u\n", &cur_fund) > 0)
+	  if (fscanf (fp, "\nFundamental %u\n", &cur_fund) == 1)
 	      next_fundamental = TRUE;
 	  else if (feof (fp))
 	    break;
 	  j++;
-	} while (next_fundamental == FALSE);
+	} while (!next_fundamental);
       fscanf (fp, "\n");
+    }
+  retval = TRUE;
+ cleanup:
+  if (!retval)
+    {
+      GtkWidget *dialog;
+      dialog = gtk_message_dialog_new_with_markup
+	(NULL,
+	 GTK_DIALOG_DESTROY_WITH_PARENT,
+	 GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
+	 _("<b><big>A syntax error was found in your file.</big></b>\n\n" \
+	   "A blank template will be loaded instead."));
+      gtk_window_set_title (GTK_WINDOW (dialog), _("Slider Wave Editor"));
+      gtk_dialog_run (GTK_DIALOG (dialog));
+      gtk_widget_destroy (dialog);
+      return FALSE;
     }
   setlocale (LC_NUMERIC, last_locale);
   g_free (last_locale);
   fclose (fp);
+  return retval;
 }
 
 /**
- * Creates a new Sound Studio project.
+ * Creates a new Slider Wave Editor project.
  *
  * Since this program currently only supports loading files at
  * startup, this function should only be called at the start of the
  * program.
  */
 void
-new_ss_project (void)
+new_sliw_project (void)
 {
   Wv_Data *second_harmonic;
   add_fund_freq ();
@@ -718,79 +793,120 @@ new_ss_project (void)
 }
 
 /**
+ * Calculates the maximum frequency extent of the interesting parts of
+ * a composite waveform.
+ *
+ * This function calculates the reciprocal of the maximum time extent
+ * needed to view the interesting parts of the current sound effect in
+ * ::wv_all_freqs.
+ * @return the reciprocal of the time extent
+ */
+float calc_freq_extent (void)
+{
+  unsigned i;
+  float most_fnd_frq;
+  float next_most_fnd_frq;
+  float least_fnd_frq;
+  float freq_ext;
+
+  /* Find the highest fundamental frequency.  */
+  most_fnd_frq = wv_all_freqs->d[0].fund_freq;
+  for (i = 0; i < wv_all_freqs->len; i++)
+    most_fnd_frq = MAX (wv_all_freqs->d[i].fund_freq, most_fnd_frq);
+  /* Find the next highest fundamental frequency.  */
+  next_most_fnd_frq = wv_all_freqs->d[0].fund_freq;
+  for (i = 0; i < wv_all_freqs->len; i++)
+    {
+      if (most_fnd_frq != wv_all_freqs->d[i].fund_freq)
+	{
+	  if (next_most_fnd_frq == most_fnd_frq)
+	    next_most_fnd_frq = wv_all_freqs->d[i].fund_freq;
+	  else
+	    next_most_fnd_frq = MAX (wv_all_freqs->d[i].fund_freq,
+				      next_most_fnd_frq);
+	}
+    }
+  /* If two different fundamental frequencies happen to be equal, set
+     next_most_fnd_frq to zero.  */
+  if (next_most_fnd_frq == most_fnd_frq)
+    next_most_fnd_frq = 0;
+  /* Find the lowest fundamental frequency.  */
+  least_fnd_frq = wv_all_freqs->d[0].fund_freq;
+  for (i = 0; i < wv_all_freqs->len; i++)
+    least_fnd_frq = MIN (wv_all_freqs->d[i].fund_freq, least_fnd_frq);
+
+  freq_ext = most_fnd_frq - next_most_fnd_frq;
+  /* When the frequency difference is greater than 100%, then the
+     display window should only reach to the extent of the component
+     with the longest wavelength.  */
+  if (freq_ext / next_most_fnd_frq > 1.00)
+    freq_ext = least_fnd_frq;
+  return freq_ext;
+}
+
+/**
  * Renders a composite waveform.
  *
  * Renders a waveform composed of all the fundamental frequency sets.
+ * @param ypts the array that will hold the rendered samples, which
+ * must be sufficiently allocated
  * @param num_samples the number of points to plot
- * @param x_max this is not actually the maximum x-axis extent, but it
- * specifies a frequency of a waveform whose entire cycle should be
- * fit into the window.  In other words, the largest x-value is equal
- * to the reciprocal of @a x_max.
+ * @param x_max the maximum x-axis extent for rendering
  * @return a malloc'ed array of rendered points, which must be freed.
  */
-double *
-render_waves (unsigned num_samples, float x_max)
+void
+render_waves (float * ypts, unsigned num_samples, float x_max)
 {
-  double *ypts;
+  float pre_max_ypt = 0.0;
   unsigned i;
-
-  ypts = (double *) g_malloc (sizeof (double) * num_samples);
-
   for (i = 0; i < num_samples; i++)
     ypts[i] = 0.0; /* Don't use memset ().  That will not set the
 		      actual value to "0.0".  */
 
   for (i = 0; i < wv_all_freqs->len; i++)
-    plot_waveform (num_samples, x_max, ypts, i, TRUE);
+    plot_waveform (ypts, num_samples, x_max, i, 1);
 
-  max_ypt = 0;
   for (i = 0; i < num_samples; i++)
-    max_ypt = MAX(ABS(ypts[i]), max_ypt);
-
-  return ypts;
+    pre_max_ypt = MAX(ABS(ypts[i]), pre_max_ypt);
+  max_ypt = pre_max_ypt;
 }
 
 /**
  * Plots a single fundamental frequency set.
  *
- * @param num_samples the number of points to plot
- * @param x_max this is not actually the maximum x-axis extent, but it
- * specifies a frequency of a waveform whose entire cycle should be
- * fit into the window.  In other words, the largest x-value is equal
- * to the reciprocal of @a x_max.
  * @param ypts the array that will hold the plotted points, which must
- * be sufficiently allocated
- * @param fund_freq the fundamental frequency set to work with
- * @param screen_render if TRUE, chooses the starting sample one value
- * higher than normal in order to render a full waveform in a
- * "pixel-perfect" manner.
+ * be sufficiently allocated.  The plotted waveform will be added to
+ * the current values.
+ * @param num_samples the number of points to plot
+ * @param x_max the maximum x-axis extent for rendering
+ * @param fund_freq_idx the fundamental frequency set to work with
+ * @param ofs offset in samples from the beginning of the sine wave
+ * cycle
  */
 void
-plot_waveform (unsigned num_samples, float x_max, double *ypts,
-	       unsigned fund_freq, gboolean screen_render)
+plot_waveform (float * ypts, unsigned num_samples, float x_max,
+	       unsigned fund_freq_idx, unsigned ofs)
 {
+  float inv_num_samp = 1.0 / num_samples;
+  float fund_freq = wv_all_freqs->d[fund_freq_idx].fund_freq;
+  float fund_amplitude = wv_all_freqs->d[fund_freq_idx].amplitude;
+  Wv_Data *harmonics = wv_all_freqs->d[fund_freq_idx].harmonics->d;
+  unsigned num_harmonics = wv_all_freqs->d[fund_freq_idx].harmonics->len;
   unsigned i;
   unsigned j;
-  unsigned ofs; /* offset */
-
-  if (screen_render == TRUE)
-    ofs = 1;
-  else
-    ofs = 0;
 
   for (i = 0; i < num_samples; i++)
     {
       float freq_mult;
-      freq_mult = wv_all_freqs->d[fund_freq].fund_freq / x_max;
-      ypts[i] += sin ((double) (i + ofs) / num_samples * 2 * G_PI *
-		      freq_mult) * wv_all_freqs->d[fund_freq].amplitude;
-      for (j = 0; j < wv_all_freqs->d[fund_freq].harmonics->len; j++)
+      freq_mult = fund_freq * x_max;
+      ypts[i] += sinf ((float) (i + ofs) * inv_num_samp * 2 * G_PI *
+		       freq_mult) * fund_amplitude;
+      for (j = 0; j < num_harmonics; j++)
 	{
-	  unsigned harmc_num;
-	  harmc_num = wv_all_freqs->d[fund_freq].harmonics->d[j].harmc_num;
-	  ypts[i] += sin ((double) (i + ofs) * harmc_num / num_samples *
-			  2 * G_PI * freq_mult) *
-	    wv_all_freqs->d[fund_freq].harmonics->d[j].amplitude;
+	  unsigned harmc_num = harmonics[j].harmc_num;
+	  ypts[i] += sinf ((float) (i + ofs) * harmc_num * inv_num_samp *
+			   2 * G_PI * freq_mult) *
+	    harmonics[j].amplitude;
 	}
     }
 }
@@ -809,7 +925,7 @@ void
 mult_amplitudes (float new_amplitude, GtkWidget * last_dialog)
 {
   unsigned i;
-  double max_height;
+  float max_height;
   unsigned *num_samples;
   unsigned total_samples;
   max_height = 0;
@@ -823,7 +939,9 @@ mult_amplitudes (float new_amplitude, GtkWidget * last_dialog)
 
   /* If there are any fundamental sets which are actually harmonics
      of each other, that is an error on the user's part.  */
-  {
+  /* NOTE: The current calculation mechanism does not require this to
+     be true anymore.  */
+  /* {
     gboolean fund_set_error;
     fund_set_error = FALSE;
     for (i = 0; i < wv_all_freqs->len - 1; i++)
@@ -843,7 +961,7 @@ mult_amplitudes (float new_amplitude, GtkWidget * last_dialog)
 	  }
       }
 
-    if (fund_set_error == TRUE)
+    if (fund_set_error)
       {
 	GtkWidget *dialog;
 	gchar *msg_string;
@@ -852,12 +970,11 @@ mult_amplitudes (float new_amplitude, GtkWidget * last_dialog)
 	dialog = gtk_message_dialog_new (GTK_WINDOW (last_dialog),
 			 GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,
 			 GTK_BUTTONS_CLOSE, msg_string);
-	gtk_window_set_title (GTK_WINDOW (dialog), _("User error"));
 	gtk_dialog_run (GTK_DIALOG (dialog));
 	gtk_widget_destroy (dialog);
 	return;
       }
-  }
+  } */
 
   /* Make sure that the total number of samples do not get too big.
      Right now, I just have to use brute force to compute the maximum
@@ -884,27 +1001,21 @@ mult_amplitudes (float new_amplitude, GtkWidget * last_dialog)
   if (total_samples > 1000)
     {
       GtkWidget *dialog;
-      gchar *str_buffer;
-      gchar *msg_string;
-      /* Translators: this message is only shown if the total number
-	 of points exceeds 1000.  */
-      msg_string = _("Are you sure you want to sample %u points?");
-      str_buffer = (gchar *) g_malloc (strlen (msg_string) + 10 + 1);
-      sprintf (str_buffer, msg_string, total_samples);
-      dialog = gtk_message_dialog_new (GTK_WINDOW (last_dialog),
-			       GTK_DIALOG_DESTROY_WITH_PARENT,
-			       GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO,
-			       str_buffer);
-      gtk_window_set_title (GTK_WINDOW (dialog), _("Confirm"));
+      dialog = gtk_message_dialog_new_with_markup
+	(GTK_WINDOW (last_dialog),
+	 GTK_DIALOG_DESTROY_WITH_PARENT,
+	 GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO,
+	 _("<b><big>Are you sure you want to sample %u " \
+	   "points?</big></b>\n\nThis may take a while, and Slider " \
+	   "will be unresponsive until the computation completes."),
+	 total_samples);
       if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_NO)
 	{
 	  gtk_widget_destroy (dialog);
-	  g_free (str_buffer);
 	  g_free (num_samples);
 	  return;
 	}
       gtk_widget_destroy (dialog);
-      g_free (str_buffer);
     }
 
   /* Compute the height at the peaks.  */
@@ -912,16 +1023,16 @@ mult_amplitudes (float new_amplitude, GtkWidget * last_dialog)
     {
       unsigned j;
       float x_max;
-      double *ypts;
+      float *ypts;
 
-      x_max = (float) wv_all_freqs->d[i].fund_freq;
-      ypts = (double *) g_malloc (sizeof (double) * num_samples[i]);
+      x_max = 1.0 / wv_all_freqs->d[i].fund_freq;
+      ypts = (float *) g_malloc (sizeof (float) * num_samples[i]);
 
       for (j = 0; j < num_samples[i]; j++)
 	ypts[j] = 0.0; /* Don't use memset ().  That will not set the
 			  actual value to "0.0".  */
 
-      plot_waveform (num_samples[i], x_max, ypts, i, FALSE);
+      plot_waveform (ypts, num_samples[i], x_max, i, 0);
 
       max_ypt = 0;
       for (j = 0; j < num_samples[i]; j++)
@@ -947,7 +1058,7 @@ mult_amplitudes (float new_amplitude, GtkWidget * last_dialog)
       }
   }
 
-  /* Update the user interface */
+  /* Update the user interface.  */
   unselect_fund_freq (g_fund_set);
   select_fund_freq (g_fund_set);
 }

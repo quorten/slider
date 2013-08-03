@@ -1,7 +1,7 @@
 /* Circumvent problems with different Microsoft runtime versions and
    libintl *printf overrides.
 
-Copyright (C) 2011, 2012 Andrew Makousky
+Copyright (C) 2011, 2012, 2013 Andrew Makousky
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -29,27 +29,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGE.  */
 
-/**
- * @file
- * Circumvent problems with different Microsoft runtime versions and
- * libintl *printf overrides.
- *
- * When <libintl.h> is included, *printf functions are overrided to
- * use *printf functions in libintl that support certain POSIX
- * features before calling fprintf in msvcrt.dll.  However, since only
- * some file functions were overrided but not all file functions,
- * using these routines can result in file descriptors that are valid
- * in one runtime to be passed to another runtime which they are
- * invalid in.  It is for this reason that all fprintf functions
- * involved in file saving and exporting are isolated in this file
- * that does not include <libintl.h>.
- */
-
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include <gtk/gtk.h>
+
 #include <stdio.h>
+#include <gtk/gtk.h>
 
 #include "wv_editors.h"
 #include "file_business.h"
@@ -58,7 +43,7 @@ DAMAGE.  */
  * Isolates fprintf functions from save_ss_project().
  */
 void
-do_save_printing (FILE* fp)
+do_save_printing (FILE * fp)
 {
   unsigned i;
   unsigned j;
@@ -82,7 +67,7 @@ do_save_printing (FILE* fp)
  * Isolates fprintf functions from export_ss_project().
  */
 void
-do_export_printing (FILE* fp)
+do_export_printing (FILE * fp)
 {
   unsigned i;
   unsigned j;

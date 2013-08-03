@@ -1,4 +1,4 @@
 GTK+ Runtime Library:
 	2.12.10-dist
-Sound Studio:
+Slider Wave Editor:
 	instdir

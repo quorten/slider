@@ -1,6 +1,6 @@
-/* Graphical user interface building function declarations.
+/* Graphical user interface building functions.
 
-Copyright (C) 2011, 2012 Andrew Makousky
+Copyright (C) 2011, 2012, 2013 Andrew Makousky
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,12 +30,12 @@ DAMAGE.  */
 
 /**
  * @file
- * Graphical user interface building function declarations.
+ * Graphical user interface building functions.
  *
  * These functions do most of the work of generating GTK+ widgets.
  * However, they only do some of the work of configuring the widgets
  * to their proper values.  The rest of this work is taken care of by
- * wv_editors.c.
+ * wv_editors.h.
  */
 
 #ifndef INTERFACE_H
@@ -45,11 +45,22 @@ extern GtkWidget *main_window;
 extern GtkWidget *wave_edit_cntr;
 extern GtkWidget *cb_fund_set;
 extern GtkWidget *wave_render;
+extern GdkColor wr_foreground;
+extern GdkColor wr_background;
+extern GdkGC *wr_gc;
+extern GtkWidget *b_play;
+extern GtkWidget *play_image;
+extern GtkWidget *stop_image;
+extern GtkWidget *manual_window;
 
 GtkWidget *create_main_window (void);
 GtkWidget *create_wvedit_holder (gboolean first_type, unsigned index);
 GtkWidget *create_mult_amps_dialog (void);
 void add_prec_slider (gboolean fund_editor, unsigned index);
 void remove_prec_slider (gboolean fund_editor, unsigned index);
+void set_render_colors (GdkColor * foreground, GdkColor * background);
+void display_manual (void);
+void display_about_box (void);
+void interface_shutdown (void);
 
 #endif /* not INTERFACE_H */

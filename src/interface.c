@@ -1,6 +1,6 @@
 /* Graphical user interface building functions.
 
-Copyright (C) 2011, 2012 Andrew Makousky
+Copyright (C) 2011, 2012, 2013 Andrew Makousky
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -28,16 +28,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGE.  */
 
-/**
- * @file
- * Graphical user interface building functions.
- *
- * These functions do most of the work of generating GTK+ widgets.
- * However, they only do some of the work of configuring the widgets
- * to their proper values.  The rest of this work is taken care of by
- * wv_editors.c.
- */
-
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -47,8 +37,9 @@ DAMAGE.  */
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
+#include <math.h>
 
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
@@ -65,43 +56,142 @@ DAMAGE.  */
 #define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) \
   g_object_set_data (G_OBJECT (component), name, widget)
 
-GtkWidget *main_window;
- /** Combo box that selects the fundamental set.  */
-GtkWidget *cb_fund_set;
+/** Main application window.  */
+GtkWidget *main_window = NULL;
+/** Combo box that selects the fundamental set.  */
+GtkWidget *cb_fund_set = NULL;
 /** GTK+ container that holds the wave editor windows.  */
 GtkWidget *wave_edit_cntr;
 /** Composite wave rendering area.  */
 GtkWidget *wave_render;
+/** Foreground color of wave rendering area.  */
+GdkColor wr_foreground;
+/** Background color of wave rendering area.  */
+GdkColor wr_background;
+/** Graphics context for drawing in the wave rendering area.  */
+GdkGC *wr_gc = NULL;
+/** Audio playback button */
+GtkWidget *b_play;
+GtkWidget *play_image;
+GtkWidget *stop_image;
+/** The window that displays the documentation manual.  */
+GtkWidget *manual_window = NULL;
+
+static const gchar *ui_info =
+"<ui>"
+"  <menubar name='MenuBar'>"
+"    <menu action='FileMenu'>"
+"      <menuitem action='New'/>"
+"      <menuitem action='Open'/>"
+"      <menuitem action='Save'/>"
+"      <menuitem action='SaveAs'/>"
+"      <menuitem action='Export'/>"
+/* "      <menuitem action='Preferences'/>" */
+"      <separator/>"
+"      <menuitem action='Quit'/>"
+"    </menu>"
+"    <menu action='TransportMenu'>"
+"      <menuitem action='Play'/>"
+"      <menuitem action='Stop'/>"
+"    </menu>"
+"    <menu action='HelpMenu'>"
+"      <menuitem action='Manual'/>"
+"      <menuitem action='About'/>"
+"    </menu>"
+"  </menubar>"
+"</ui>";
 
 GtkWidget *
 create_main_window (void)
 {
-  /* GtkWidget *main_window; */
   GtkWidget *main_vbox;
+  GtkWidget *menu_bar;
   GtkWidget *tools_hbox;
   GtkWidget *main_commands;
-  GtkWidget *b_save;
-  GtkWidget *b_export;
-  GtkWidget *b_play;
-  GtkWidget *b_stop;
+  GtkWidget *b_save_as;
+  GtkWidget *agc_vol_scale;
   GtkWidget *fundset_sel_hbox;
   GtkWidget *fundset_label;
-  /* GtkWidget *cb_fund_set; */
   GtkWidget *wv_edit_div;
-  /* GtkWidget *wave_render; */
   GtkWidget *wave_editors_sb;
   GtkWidget *wv_edit_viewport;
-  /* GtkWidget *wave_edit_cntr; */
-  GdkColor color;
+
+  /* Each entry takes the following form:
+     { name, stock id, label, accelerator, tooltip, callback }
+     Any parts not specified take on default zero values.  */
+  GtkActionEntry entries[] = {
+    { "FileMenu", NULL, _("_File") },
+    { "TransportMenu", NULL, _("_Transport") },
+    { "HelpMenu", NULL, _("_Help") },
+    { "New", GTK_STOCK_NEW, _("_New"), "<control>N",
+      _("Create a new file"),
+      G_CALLBACK (activate_action) },
+    { "Open", GTK_STOCK_OPEN, _("_Open..."), "<control>O",
+      _("Open an existing file"),
+      G_CALLBACK (activate_action) },
+    { "Save", GTK_STOCK_SAVE, _("_Save"),"<control>S",
+      _("Save the current file"),
+      G_CALLBACK (activate_action) },
+    { "SaveAs", GTK_STOCK_SAVE_AS, _("Save _As..."), NULL,
+      _("Save the current file with a new name"),
+      G_CALLBACK (activate_action) },
+    { "Export", NULL, _("_Export..."), NULL,
+      _("Export a Nyquist script that generates this waveform"),
+      G_CALLBACK (activate_action) },
+    /* { "Preferences", NULL, _("_Preferences"), NULL,
+       _("Preferences"),
+       G_CALLBACK (activate_action) }, */
+    { "Quit", GTK_STOCK_QUIT, _("_Quit"), "<control>Q",
+      _("Leave Slider Wave Editor"),
+      G_CALLBACK (activate_action) },
+    { "Play", GTK_STOCK_MEDIA_PLAY, _("_Play"), "<control>X",
+      _("Enable playback of the current waveform"),
+      G_CALLBACK (activate_action) },
+    { "Stop", GTK_STOCK_MEDIA_STOP, _("_Stop"), "<control>Z",
+      _("Stop playback of the current waveform"),
+      G_CALLBACK (activate_action) },
+    { "Manual", GTK_STOCK_HELP, _("_Manual"), "F1",
+      _("Display the manual"),
+      G_CALLBACK (activate_action) },
+    { "About", GTK_STOCK_ABOUT, _("_About"), NULL,
+      _("Display program name and copyright information"),
+      G_CALLBACK (activate_action) },
+  };
+  guint n_entries = G_N_ELEMENTS (entries);
 
   main_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_container_set_border_width (GTK_CONTAINER (main_window), 10);
-  gtk_window_set_title (GTK_WINDOW (main_window), _("Sound Studio"));
+  /* gtk_container_set_border_width (GTK_CONTAINER (main_window), 8); */
+  gtk_window_set_title (GTK_WINDOW (main_window), _("Slider Wave Editor"));
   gtk_window_set_default_size (GTK_WINDOW (main_window), 600, 400);
 
   main_vbox = gtk_vbox_new (FALSE, 5);
   gtk_widget_show (main_vbox);
   gtk_container_add (GTK_CONTAINER (main_window), main_vbox);
+
+  { /* Build the menu bar.  */
+    GtkActionGroup *action_group;
+    GtkUIManager *merge;
+    GError *error = NULL;
+
+    action_group = gtk_action_group_new ("AppWindowActions");
+    gtk_action_group_add_actions (action_group,
+				  entries, n_entries,
+				  main_window);
+    merge = gtk_ui_manager_new ();
+    g_object_set_data_full (G_OBJECT (main_window), "ui-manager", merge,
+			    g_object_unref);
+    gtk_ui_manager_insert_action_group (merge, action_group, 0);
+    gtk_window_add_accel_group (GTK_WINDOW (main_window),
+				gtk_ui_manager_get_accel_group (merge));
+    if (!gtk_ui_manager_add_ui_from_string (merge, ui_info, -1, &error))
+      {
+	g_message ("building menus failed: %s", error->message);
+	g_error_free (error);
+      }
+    menu_bar = gtk_ui_manager_get_widget (merge, "/MenuBar");
+    gtk_widget_show (menu_bar);
+    gtk_box_pack_start (GTK_BOX (main_vbox), menu_bar, FALSE, FALSE, 0);
+  }
 
   tools_hbox = gtk_hbox_new (FALSE, 5);
   gtk_widget_show (tools_hbox);
@@ -112,25 +202,33 @@ create_main_window (void)
   gtk_box_pack_start (GTK_BOX (tools_hbox), main_commands, FALSE, FALSE, 0);
   gtk_box_set_spacing (GTK_BOX (main_commands), 5);
 
-  b_save = gtk_button_new_with_mnemonic (_("Save"));
-  gtk_widget_show (b_save);
-  gtk_container_add (GTK_CONTAINER (main_commands), b_save);
-  GTK_WIDGET_SET_FLAGS (b_save, GTK_CAN_DEFAULT);
+  b_save_as = gtk_button_new_with_mnemonic (_("Save As"));
+  gtk_button_set_image (GTK_BUTTON (b_save_as),
+    gtk_image_new_from_stock (GTK_STOCK_SAVE_AS, GTK_ICON_SIZE_BUTTON));
+  gtk_widget_show (b_save_as);
+  gtk_container_add (GTK_CONTAINER (main_commands), b_save_as);
+  GTK_WIDGET_SET_FLAGS (b_save_as, GTK_CAN_DEFAULT);
 
-  b_export = gtk_button_new_with_mnemonic (_("Export"));
-  gtk_widget_show (b_export);
-  gtk_container_add (GTK_CONTAINER (main_commands), b_export);
-  GTK_WIDGET_SET_FLAGS (b_export, GTK_CAN_DEFAULT);
+  play_image = gtk_image_new_from_stock (GTK_STOCK_MEDIA_PLAY,
+					 GTK_ICON_SIZE_BUTTON);
+  g_object_ref (play_image);
+  gtk_object_sink (GTK_OBJECT (play_image));
+  stop_image = gtk_image_new_from_stock (GTK_STOCK_MEDIA_STOP,
+					 GTK_ICON_SIZE_BUTTON);
+  g_object_ref (stop_image);
+  gtk_object_sink (GTK_OBJECT (stop_image));
 
   b_play = gtk_button_new_with_mnemonic (_("Play"));
+  gtk_button_set_image (GTK_BUTTON (b_play), play_image);
   gtk_widget_show (b_play);
   gtk_container_add (GTK_CONTAINER (main_commands), b_play);
   GTK_WIDGET_SET_FLAGS (b_play, GTK_CAN_DEFAULT);
 
-  b_stop = gtk_button_new_with_mnemonic (_("Stop"));
-  gtk_widget_show (b_stop);
-  gtk_container_add (GTK_CONTAINER (main_commands), b_stop);
-  GTK_WIDGET_SET_FLAGS (b_stop, GTK_CAN_DEFAULT);
+  agc_vol_scale = gtk_hscale_new_with_range (0.0, 1.0, 0.01);
+  gtk_scale_set_value_pos (GTK_SCALE (agc_vol_scale), GTK_POS_LEFT);
+  gtk_range_set_value (GTK_RANGE (agc_vol_scale), 0.5);
+  gtk_widget_show (agc_vol_scale);
+  gtk_box_pack_start (GTK_BOX (tools_hbox), agc_vol_scale, TRUE, TRUE, 0);
 
   fundset_sel_hbox = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (fundset_sel_hbox);
@@ -153,10 +251,6 @@ create_main_window (void)
   wave_render = gtk_drawing_area_new ();
   gtk_widget_show (wave_render);
   gtk_paned_pack1 (GTK_PANED (wv_edit_div), wave_render, FALSE, TRUE);
-  color.red = 0xFFFF;
-  color.green = 0xFFFF;
-  color.blue = 0xFFFF;
-  gtk_widget_modify_bg (wave_render, GTK_STATE_NORMAL, &color);
 
   wave_editors_sb = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (wave_editors_sb);
@@ -172,32 +266,31 @@ create_main_window (void)
   gtk_widget_show (wave_edit_cntr);
   gtk_container_add (GTK_CONTAINER (wv_edit_viewport), wave_edit_cntr);
 
-  g_signal_connect_swapped ((gpointer) main_window, "configure_event",
-			    G_CALLBACK (wv_edit_div_configure),
-			    GTK_OBJECT (wv_edit_div));
-  g_signal_connect ((gpointer) b_save, "clicked",
-		    G_CALLBACK (b_save_clicked), NULL);
-  g_signal_connect ((gpointer) b_export, "clicked",
-		    G_CALLBACK (b_export_clicked), NULL);
+  g_signal_connect ((gpointer) main_window, "delete-event",
+		    G_CALLBACK (main_window_delete), NULL);
+  g_signal_connect ((gpointer) wv_edit_div, "size_allocate",
+		    G_CALLBACK (wv_edit_div_allocate), NULL);
+  g_signal_connect ((gpointer) b_save_as, "clicked",
+		    G_CALLBACK (b_save_as_clicked), NULL);
   g_signal_connect ((gpointer) b_play, "clicked",
 		    G_CALLBACK (b_play_clicked), NULL);
-  g_signal_connect ((gpointer) b_stop, "clicked",
-		    G_CALLBACK (b_stop_clicked), NULL);
+  g_signal_connect ((gpointer) agc_vol_scale, "value-changed",
+		    G_CALLBACK (agc_vol_changed), NULL);
   g_signal_connect ((gpointer) cb_fund_set, "changed",
 		    G_CALLBACK (cb_fund_set_changed), NULL);
   g_signal_connect ((gpointer) wave_render, "expose_event",
 		    G_CALLBACK (wavrnd_expose), NULL);
 
-  select_fund_freq (0);
+  select_fund_freq (g_fund_set);
 
   /* Store pointers to all widgets, for use by lookup_widget().  */
   GLADE_HOOKUP_OBJECT_NO_REF (main_window, main_window, "main_window");
   GLADE_HOOKUP_OBJECT (main_window, main_vbox, "main_vbox");
   GLADE_HOOKUP_OBJECT (main_window, tools_hbox, "tools_hbox");
   GLADE_HOOKUP_OBJECT (main_window, main_commands, "main_commands");
-  GLADE_HOOKUP_OBJECT (main_window, b_save, "b_save");
+  GLADE_HOOKUP_OBJECT (main_window, b_save_as, "b_save_as");
   GLADE_HOOKUP_OBJECT (main_window, b_play, "b_play");
-  GLADE_HOOKUP_OBJECT (main_window, b_stop, "b_stop");
+  GLADE_HOOKUP_OBJECT (main_window, agc_vol_scale, "agc_vol_scale");
   GLADE_HOOKUP_OBJECT (main_window, fundset_sel_hbox, "fundset_sel_hbox");
   GLADE_HOOKUP_OBJECT (main_window, fundset_label, "fundset_label");
   GLADE_HOOKUP_OBJECT (main_window, cb_fund_set, "cb_fund_set");
@@ -218,7 +311,7 @@ create_main_window (void)
  * to be recreated.  This function only creates the widgets for a wave
  * editor window and does not update the data model.  In order to
  * properly add a new wave editor window for harmonics, you should
- * call add_wv_editor().  If the fundamental frequency set being
+ * also call add_wv_editor().  If the fundamental frequency set being
  * worked with is currently selected, then you will need to update
  * other information as is done in harmc_win_add_clicked().
  *
@@ -293,7 +386,7 @@ create_wvedit_holder (gboolean first_type, unsigned index)
   gtk_container_add (GTK_CONTAINER (wvedit_holder_frame), wvedit_holder_vbox);
   gtk_container_set_border_width (GTK_CONTAINER (wvedit_holder_vbox), 5);
 
-  if (first_type == TRUE)
+  if (first_type)
     {
       fund_editor_hbox = gtk_hbox_new (FALSE, 5);
       gtk_widget_show (fund_editor_hbox);
@@ -306,7 +399,9 @@ create_wvedit_holder (gboolean first_type, unsigned index)
 			  FALSE, FALSE, 0);
 
       harmc_one_drop = gtk_button_new_with_mnemonic (_("1st Harmonic Drop"));
-      gtk_widget_show (harmc_one_drop);
+      /* Don't discourage the user by displaying something that can
+	 never be clicked on.  */
+      /* gtk_widget_show (harmc_one_drop); */
       gtk_box_pack_start (GTK_BOX (fund_editor_left_hbox), harmc_one_drop,
 			  FALSE, FALSE, 0);
       gtk_widget_set_sensitive (harmc_one_drop, FALSE);
@@ -364,8 +459,7 @@ create_wvedit_holder (gboolean first_type, unsigned index)
       gtk_box_pack_start (GTK_BOX (fund_freq_left_hbox), fndfrq_exp_label,
 			  FALSE, FALSE, 0);
 
-      /* Setting an adjustment with a non-zero page size is deprecated.  */
-      fndfrq_exp_adj = gtk_adjustment_new (0, -100, 100, 1, 10, 10);
+      fndfrq_exp_adj = gtk_adjustment_new (0, -100, 100, 1, 10, 0);
       fndfrq_exp = gtk_spin_button_new (GTK_ADJUSTMENT (fndfrq_exp_adj), 1, 0);
       gtk_widget_show (fndfrq_exp);
       gtk_box_pack_start (GTK_BOX (fund_freq_left_hbox), fndfrq_exp, TRUE,
@@ -502,8 +596,7 @@ create_wvedit_holder (gboolean first_type, unsigned index)
   gtk_box_pack_start (GTK_BOX (amp_left_hbox), amp_exp_label, FALSE, FALSE,
 		      0);
 
-  /* Setting an adjustment with a non-zero page size is deprecated.  */
-  amp_exp_adj = gtk_adjustment_new (0, -100, 100, 1, 10, 10);
+  amp_exp_adj = gtk_adjustment_new (0, -100, 100, 1, 10, 0);
   amp_exp = gtk_spin_button_new (GTK_ADJUSTMENT (amp_exp_adj), 1, 0);
   gtk_widget_show (amp_exp);
   gtk_box_pack_start (GTK_BOX (amp_left_hbox), amp_exp, TRUE, TRUE, 0);
@@ -526,9 +619,9 @@ create_wvedit_holder (gboolean first_type, unsigned index)
   gtk_widget_show (amp_precslid_remove);
   gtk_box_pack_start (GTK_BOX (amp_precslid_change), amp_precslid_remove,
 		      FALSE, FALSE, 0);
-  if ((first_type == TRUE &&
+  if ((first_type &&
        wv_all_freqs->d[g_fund_set].fund_editor.amp_sliders->len <= 1) ||
-      (first_type == FALSE &&
+      (!first_type &&
        wv_all_freqs->d[g_fund_set].wv_editors->d[index]->
        amp_sliders->len <= 1))
     gtk_widget_set_sensitive (amp_precslid_remove, FALSE);
@@ -545,7 +638,7 @@ create_wvedit_holder (gboolean first_type, unsigned index)
   gtk_box_pack_start (GTK_BOX (amp_slider_vbox), hscrollbar1, TRUE, TRUE,
 		      0); */
 
-  if (first_type == TRUE)
+  if (first_type)
     {
       wv_all_freqs->d[index].fund_editor.fndfrq_mntisa = fndfrq_mntisa;
       wv_all_freqs->d[index].fund_editor.fndfrq_exp = fndfrq_exp;
@@ -634,7 +727,8 @@ create_wvedit_holder (gboolean first_type, unsigned index)
       wv_all_freqs->d[g_fund_set].wv_editors->d[index]->amp_sliders_vbox =
 	amp_slider_vbox;
       /* We already called the following statement earlier in the
-	 function to fix a bug.  */
+	 function to fix a bug.  (It would make more sense to put it
+	 here though...)  */
       /* wv_all_freqs->d[g_fund_set].wv_editors->d[index]->harmc_win_rm_btn =
 	harmc_win_remove; */
 
@@ -692,6 +786,19 @@ create_wvedit_holder (gboolean first_type, unsigned index)
 			G_CALLBACK (precslid_remove_clicked),
 			(gpointer)(wv_all_freqs->d[g_fund_set].
 				   wv_editors->d[index]->amp_sliders->d[0]));
+    }
+
+  if (first_type)
+    {
+      Wv_Editor_Data *cur_editor = &(wv_all_freqs->d[index].fund_editor);
+      update_slider_bases (GTK_ENTRY (fndfrq_mntisa), cur_editor, TRUE);
+      update_slider_bases (GTK_ENTRY (amp_mntisa), cur_editor, FALSE);
+    }
+  else
+    {
+      Wv_Editor_Data *cur_editor =
+	wv_all_freqs->d[g_fund_set].wv_editors->d[index];
+      update_slider_bases (GTK_ENTRY (amp_mntisa), cur_editor, FALSE);
     }
 
   /* Store pointers to all widgets, for use by lookup_widget().  */
@@ -777,6 +884,8 @@ create_mult_amps_dialog (void)
 			  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
 			  GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
 			  GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL);
+  /* gtk_dialog_set_alternative_button_order (GTK_DIALOG (mult_amps_dialog),
+				 GTK_RESPONSE_ACCEPT, GTK_RESPONSE_REJECT); */
 
   dialog_main_vbox = GTK_DIALOG (mult_amps_dialog)->vbox;
   gtk_widget_show (dialog_main_vbox);
@@ -817,7 +926,7 @@ create_mult_amps_dialog (void)
 }
 
 /**
- * Add a precision slider to the given editor.
+ * Adds a precision slider to the given editor.
  *
  * @param fund_editor if TRUE, then @a index specifies the frequency
  * sliders if zero and the amplitude sliders if one.  Otherwise, @a
@@ -832,7 +941,6 @@ add_prec_slider (gboolean fund_editor, unsigned index)
   GtkWidget *parent_box;
   Slide_Data *sd_block;
 
-  /* Setting an adjustment with a non-zero page size is deprecated.  */
   hscrollbar =
     gtk_hscrollbar_new (GTK_ADJUSTMENT
 			(gtk_adjustment_new (10, 0, 21, 0.1, 1.0, 1.0)));
@@ -842,42 +950,72 @@ add_prec_slider (gboolean fund_editor, unsigned index)
   sd_block->widget = hscrollbar;
   sd_block->last_value = 10;
 
-  if (fund_editor == TRUE)
+  if (fund_editor)
     {
       if (index == 0)
 	{
-	  Wv_Editor_Data *cur_editor;
-	  cur_editor = &wv_all_freqs->d[g_fund_set].fund_editor;
+	  Wv_Editor_Data *cur_editor =
+	    &wv_all_freqs->d[g_fund_set].fund_editor;
 	  parent_box = cur_editor->freq_sliders_vbox;
 
 	  sd_block->index = cur_editor->freq_sliders->len;
 	  sd_block->fund_assoc = TRUE;
 	  sd_block->parent_index = 0;
+	  sd_block->base = -10.0 * pow(100, -((gdouble) sd_block->index));
+	  if (sd_block->index > 0)
+	    {
+	      Slide_Data *last_slider =
+		cur_editor->freq_sliders->d[sd_block->index-1];
+	      gdouble value_mult =
+		pow(100, -((gdouble) (sd_block->index - 1)));
+	      sd_block->base +=
+		last_slider->base + last_slider->last_value * value_mult;
+	    }
 
 	  g_array_append_val ((GArray *) cur_editor->freq_sliders, sd_block);
 	}
       else
 	{
-	  Wv_Editor_Data *cur_editor;
-	  cur_editor = &wv_all_freqs->d[g_fund_set].fund_editor;
+	  Wv_Editor_Data *cur_editor =
+	    &wv_all_freqs->d[g_fund_set].fund_editor;
 	  parent_box = cur_editor->amp_sliders_vbox;
 
 	  sd_block->index = cur_editor->amp_sliders->len;
 	  sd_block->fund_assoc = TRUE;
 	  sd_block->parent_index = 1;
+	  sd_block->base = -10.0 * pow(100, -((gdouble) sd_block->index));
+	  if (sd_block->index > 0)
+	    {
+	      Slide_Data *last_slider =
+		cur_editor->amp_sliders->d[sd_block->index-1];
+	      gdouble value_mult =
+		pow(100, -((gdouble) (sd_block->index - 1)));
+	      sd_block->base +=
+		last_slider->base + last_slider->last_value * value_mult;
+	    }
 
 	  g_array_append_val ((GArray *) cur_editor->amp_sliders, sd_block);
 	}
     }
   else
     {
-      Wv_Editor_Data *cur_editor;
-      cur_editor = wv_all_freqs->d[g_fund_set].wv_editors->d[index];
+      Wv_Editor_Data *cur_editor =
+	wv_all_freqs->d[g_fund_set].wv_editors->d[index];
       parent_box = cur_editor->amp_sliders_vbox;
 
       sd_block->index = cur_editor->amp_sliders->len;
       sd_block->fund_assoc = FALSE;
       sd_block->parent_index = index;
+      sd_block->base = -10.0 * pow(100, -((gdouble) sd_block->index));
+      if (sd_block->index > 0)
+	{
+	  Slide_Data *last_slider =
+	    cur_editor->amp_sliders->d[sd_block->index-1];
+	  gdouble value_mult =
+	    pow(100, -((gdouble) (sd_block->index - 1)));
+	  sd_block->base +=
+	    last_slider->base + last_slider->last_value * value_mult;
+	}
 
       g_array_append_val ((GArray *) cur_editor->amp_sliders, sd_block);
     }
@@ -902,7 +1040,7 @@ remove_prec_slider (gboolean fund_editor, unsigned index)
   /* We will assume it to be unnecessary to nullify the pointer to the
      freed array entry, since it will be beyond the bounds of the
      array.  */
-  if (fund_editor == TRUE)
+  if (fund_editor)
     {
       if (index == 0)
 	{
@@ -937,4 +1075,170 @@ remove_prec_slider (gboolean fund_editor, unsigned index)
       g_slice_free1 (sizeof (Slide_Data), cur_editor->
 		     amp_sliders->d[--cur_editor->amp_sliders->len]);
     }
+}
+
+/**
+ * Sets the foreground and background colors used by the wave
+ * rendering area.
+ */
+void
+set_render_colors (GdkColor * foreground, GdkColor * background)
+{
+  memcpy (&wr_foreground, foreground, sizeof (GdkColor));
+  memcpy (&wr_background, background, sizeof (GdkColor));
+  gtk_widget_modify_bg (wave_render, GTK_STATE_NORMAL, &wr_background);
+  if (G_LIKELY (wr_gc != NULL))
+    gdk_gc_set_rgb_fg_color (wr_gc, &wr_foreground);
+}
+
+/**
+ * Display the manual for Slider Wave Editor.
+ */
+void
+display_manual (void)
+{
+  gboolean file_error = FALSE;
+  gchar *filename;
+  FILE *fp;
+  gchar *manual_text;
+
+  GtkWidget *scrolled_window;
+  GtkTextBuffer *text_buffer;
+  GtkWidget *text_view;
+  PangoFontDescription *font_desc;
+
+  if (manual_window != NULL)
+    {
+      gtk_window_present (GTK_WINDOW (manual_window));
+      return;
+    }
+
+  /* Read the manual from its file.  */
+  filename = g_build_filename (package_data_dir,
+			       PACKAGE, "help.txt", NULL);
+  fp = fopen (filename, "r");
+  if (fp == NULL)
+    file_error = TRUE;
+  else
+    {
+      long file_size;
+      fseek (fp, 0, SEEK_END);
+      file_size = ftell (fp);
+      if (file_size < 0)
+	file_error = TRUE;
+      else
+	{
+	  size_t read_status;
+	  manual_text = g_malloc (sizeof (gchar) * (file_size + 1));
+	  fseek (fp, 0, SEEK_SET);
+	  read_status = fread (manual_text, file_size, 1, fp);
+	  manual_text[file_size] = '\0';
+	  if (read_status != 1)
+	    {
+	      file_error = TRUE;
+	      g_free (manual_text);
+	    }
+	}
+      fclose (fp);
+    }
+  g_free (filename);
+
+  if (file_error)
+    manual_text = "Error: Could not read the manual file.\n";
+
+  manual_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_title (GTK_WINDOW (manual_window),
+			_("Slider Wave Editor Manual"));
+  gtk_window_set_default_size (GTK_WINDOW (manual_window), 650, 600);
+
+  scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+  gtk_widget_show (scrolled_window);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+				  GTK_POLICY_AUTOMATIC,
+				  GTK_POLICY_AUTOMATIC);
+  gtk_container_add (GTK_CONTAINER (manual_window), scrolled_window);
+
+  text_view = gtk_text_view_new ();
+  gtk_widget_show (text_view);
+  text_buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (text_view));
+  gtk_text_view_set_editable (GTK_TEXT_VIEW (text_view), FALSE);
+  gtk_text_view_set_cursor_visible (GTK_TEXT_VIEW (text_view), FALSE);
+  font_desc = pango_font_description_from_string ("monospace 10");
+  gtk_widget_modify_font (text_view, font_desc);
+  pango_font_description_free (font_desc);
+  gtk_text_buffer_set_text (text_buffer, manual_text, -1);
+  gtk_container_add (GTK_CONTAINER (scrolled_window), text_view);
+
+  g_signal_connect ((gpointer) manual_window, "destroy",
+		    G_CALLBACK (manual_win_destroy), NULL);
+  gtk_widget_show (manual_window);
+
+  if (!file_error)
+    g_free (manual_text);
+}
+
+/**
+ * Display the about dialog for Slider Wave Editor.
+ */
+void
+display_about_box (void)
+{
+  /* The license use to be loaded from the COPYING file, but now only
+     an embedded copy will be used.  */
+  const gchar *license =
+"Slider Wave Editor is licensed under the Simplified BSD License.\n"
+"\n"
+"Copyright (C) 2011, 2012, 2013 Andrew Makousky\n"
+"All rights reserved.\n"
+"\n"
+"Redistribution and use in source and binary forms, with or without\n"
+"modification, are permitted provided that the following conditions are\n"
+"met:\n"
+"\n"
+"  * Redistributions of source code must retain the above copyright\n"
+"    notice, this list of conditions and the following disclaimer.\n"
+"\n"
+"  * Redistributions in binary form must reproduce the above copyright\n"
+"    notice, this list of conditions and the following disclaimer in\n"
+"    the documentation and/or other materials provided with the\n"
+"    distribution.\n"
+"\n"
+"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"
+"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
+"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR\n"
+"A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT\n"
+"HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,\n"
+"SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT\n"
+"LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,\n"
+"DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\n"
+"THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n"
+"(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n"
+"OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n";
+
+  GdkPixbuf *pixbuf = create_pixbuf ("icon192.png");
+
+  gtk_show_about_dialog (GTK_WINDOW (main_window),
+	 "program-name", _("Slider Wave Editor"),
+	 "version", PACKAGE_VERSION,
+	 "copyright", "© 2011, 2012, 2013 Andrew Makousky",
+	 "license", license,
+	 "comments",
+_("Slider is an interactive program designed to help you synthesize sound " \
+"effects by building them from harmonics and by combining multiple " \
+"non-harmonic sine waves."),
+	 "logo", pixbuf,
+         "title", _("About Slider Wave Editor"),
+	 NULL);
+
+  g_object_unref (pixbuf);
+}
+
+void
+interface_shutdown (void)
+{
+  g_free (loaded_fname);
+  g_free (last_folder);
+  gtk_widget_destroy (play_image); g_object_unref (play_image);
+  gtk_widget_destroy (stop_image); g_object_unref (stop_image);
+  g_object_unref (wr_gc);
 }

@@ -1,14 +1,25 @@
-* Improve the documentation infrastructure.
+* Slider needs better adjustment controls based on real-world common
+  usage patterns.
+
+* Slider needs desktop integration with its project files.
+
+* The new icons need to be incorporated into the user interface.
+
+* The display needs to indicate the current scale.
+
+* Make the user manual look a little nicer.
+
+* The user needs to be able to choose the colors of the wave display
+  area.
+
+* The user needs to be able to adjust or disable the AGC safety
+  clipping factor for audio waveform output.
 
 * Finish the Spanish installer strings.
 
-* Implement audio playback and dynamic editing while listening to the
-  sound using PortAudio.
-
 * Add a console interface.
 
-* Make Sound Studio usable to people who may be visually impaired or
-  blind.
+* Make Slider usable to people who may be visually impaired or blind.
 
 * Improve the "Normalize Amplitudes" calculation.
 

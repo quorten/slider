@@ -2,8 +2,8 @@
 <!DOCTYPE glade-project SYSTEM "http://glade.gnome.org/glade-project-2.0.dtd">
 
 <glade-project>
-  <name>Sound Studio</name>
-  <program_name>sndstud</program_name>
+  <name>Slider</name>
+  <program_name>slider</program_name>
   <style>GNU</style>
   <gnome_support>FALSE</gnome_support>
   <backup_source_files>FALSE</backup_source_files>

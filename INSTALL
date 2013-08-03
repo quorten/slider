@@ -23,32 +23,56 @@ more information about installation on Windows, see the section
 at the section "Using Configure" and continue untill the end of the
 file.
 
-To build Sound Studio on any system, you will need GTK+ installed on
-your system, along with its associated developer packages.  GTK+'s
-website is <http://www.gtk.org>.  On Debian-based systems, the command
+   To build Slider on any system, you will need GTK+ installed on your
+system, along with its associated developer packages.  GTK+'s website
+is <http://www.gtk.org>.  If you want audio playback capabilities, you
+will also need PortAudio <http://www.portaudio.com>.  To compile
+without support for audio, pass the option `--without-portaudio' to
+the configure script.
 
-  apt-get install build-essential libgtk2.0-dev gettext
+On Debian-based systems, the command
+
+  apt-get install build-essential libgtk2.0-dev gettext \
+  portaudio19-dev
 
 should download and install all of the necessary developer packages
-for you to be able to build Sound Studio.
+for you to be able to build Slider.
+
+   For those who already have advanced digital audio workstation
+setups, you may be interested in enabling Slider's direct support for
+JACK <http://jackaudio.org> rather than using JACK indirectly through
+PortAudio.  To enable direct support for JACK, pass the option
+`--with-jack' to the configure script.  For those who do not already
+have JACK setup, be forewarned that it can be hard to set up, even
+more so if your computer does not have a professional sound card for
+audio production.  On Debian-based systems, the command
+
+  apt-get install libjack-dev
+
+should download and install the development files for JACK.
 
 Installing on Windows
 =====================
 
-To build Sound Studio using `configure', you need an installation of
+   To build Slider using `configure', you need an installation of
 basic Unix-like tools in order to run the configure script.  This
 means you need either MinGW, Cygwin, or the enterprise edition of
 Windows 7.  If you are using MinGW or Cygwin, a useful option to pass
-through GCC while linking is "-Wl,-subsystem=windows".  This will
-compile a Windows binary that does not display a console window.  See
-the section "Compilers and Options" below for information on how to do
-this with `configure'.  If you want to easily compile a native Windows
-binary without knowing exactly how Cygwin works, you should use MinGW.
+through GCC while linking is "-Wl,-subsystem=windows".  Another useful
+option is "-Wl,-s" You should call `configure' like this to enable
+these linker options:
 
-The version of GTK+ (along
-with its associated packages) you are recommended to use is GTK+
-2.12.10.  You get the GTK+ 2.12.10 bundle from the GNOME servers using
-the URL
+  ./configure LDFLAGS='-Wl,-subsystem=windows,-s'
+
+This will compile a Windows binary that does not display a console
+window.  See the section "Compilers and Options" below for information
+on how to do this with `configure'.  If you want to easily compile a
+native Windows binary without knowing exactly how Cygwin works, you
+should use MinGW.
+
+   The version of GTK+ (along with its associated packages) you are
+recommended to use is GTK+ 2.12.10.  You get the GTK+ 2.12.10 bundle
+from the GNOME servers using the URL
 <http://ftp.gnome.org/pub/GNOME/binaries/win32/gtk+/2.12/gtk+-2.12.10.zip>.
 The reason why you are not recommended to use the very latest version
 of GTK+ for Windows is because it unusually draws GTK+ icons where the
@@ -60,12 +84,28 @@ directory.  This installation setup will not work with the Windows
 binary, so you will need to move the "locale" directory within the
 "lib" directory to be within the "share" directory.
 
-MSVC project files are provided for compiling Sound Studio.  The
-Visual Studio folder also comes with an Application Configuration File
-as an added bonus.  If you don't know what to do with this, then don't
-use it.
+   MSVC project files are provided for compiling Slider.  The Visual
+Studio folder also comes with an Application Configuration File as an
+added bonus.  Basically, the application configuration file provided
+is meant to remap Slider's compiled CRT dependent assemblies to the
+system's actual available assemblies using the Windows manifest
+technology.  See the Windows Platform SDK documentation for more
+details.  In case that's too much for you and you don't know what to
+do with this application configuration file, then don't use it.
 
-A project file is also provided for Dev-C++.
+   A project file is also provided for Dev-C++.
+
+   The MSVC project files for MSVC 2005 and Dev-C++ have both been
+tested to compile with PortAudio and are configured to compile with
+PortAudio by default.  To compile with PortAudio for MSVC 2005, just
+put the necessary include and library files within the "msvc/"
+subdirectory.  The MSVC 6 project file has not been tested with
+PortAudio and is configured with audio disabled by default.  You may
+have to adjust the PortAudio include and library paths for Dev-C++.
+
+The MSVC build been known to have problems with sound while using
+languages other than having English as the default.  The exact
+circumstances and reasons for this are not yet understood.
 
 Using Configure
 ===============

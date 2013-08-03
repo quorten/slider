@@ -1,6 +1,6 @@
-/* Sound Studio main startup file.
+/* Slider Wave Editor main startup file.
 
-Copyright (C) 2011, 2012 Andrew Makousky
+Copyright (C) 2011, 2012, 2013 Andrew Makousky
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,18 +30,22 @@ DAMAGE.  */
 
 /**
  * @file
- * Sound Studio main startup file.
+ * Slider Wave Editor main startup file.
  */
 
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
 
+#include <stdlib.h>
 #include <gtk/gtk.h>
 
+#include "binreloc.h"
 #include "interface.h"
+#include "callbacks.h"
 #include "support.h"
 #include "wv_editors.h"
+#include "audio.h"
 
 gchar *package_prefix = PACKAGE_PREFIX;
 gchar *package_data_dir = PACKAGE_DATA_DIR;
@@ -50,36 +54,37 @@ gchar *package_locale_dir = PACKAGE_LOCALE_DIR;
 int
 main (int argc, char *argv[])
 {
-  gchar *pixmap_dir;
+  /* Initialize packge paths.  */
 #ifdef G_OS_WIN32
   package_prefix = g_win32_get_package_installation_directory (NULL, NULL);
   package_data_dir = g_build_filename (package_prefix, "share", NULL);
   package_locale_dir =
     g_build_filename (package_prefix, "share", "locale", NULL);
+#else
+  br_init (NULL);
+  package_prefix = br_find_prefix (package_prefix);
+  package_data_dir = br_find_data_dir (package_data_dir);
+  package_locale_dir = br_find_locale_dir (package_locale_dir);
 #endif
 
+  /* Initialize NLS.  */
 #ifdef ENABLE_NLS
   bindtextdomain (GETTEXT_PACKAGE, package_locale_dir);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
   textdomain (GETTEXT_PACKAGE);
 #endif
 
+  /* Initialize GTK+.  */
   gtk_set_locale ();
   gtk_init (&argc, &argv);
-
-  init_wv_editors ();
-  if (argc > 1)
-      load_ss_project (argv[1]);
-  else
-      new_ss_project ();
-
-  pixmap_dir = g_build_filename (package_data_dir, PACKAGE, "pixmaps", NULL);
-  add_pixmap_directory (pixmap_dir);
-  g_free (pixmap_dir);
-
   {
-    GList *icon_list;
-    icon_list = NULL;
+    gchar *pixmap_dir = g_build_filename (package_data_dir, PACKAGE,
+					  "pixmaps", NULL);
+    add_pixmap_directory (pixmap_dir);
+    g_free (pixmap_dir);
+  }
+  {
+    GList *icon_list = NULL;
     icon_list = g_list_prepend (icon_list, create_pixbuf ("icon48.png"));
     icon_list = g_list_prepend (icon_list, create_pixbuf ("icon32.png"));
     icon_list = g_list_prepend (icon_list, create_pixbuf ("icon16.png"));
@@ -90,22 +95,52 @@ main (int argc, char *argv[])
     g_list_free (icon_list);
   }
 
-  create_main_window ();
-  gtk_window_set_default_size (GTK_WINDOW (main_window), 600, 400);
-  gtk_widget_show (main_window);
-  g_signal_connect ((gpointer) main_window, "destroy",
-		    G_CALLBACK (gtk_main_quit), NULL);
+  /* Initialize Slider's data model.  */
+  init_wv_editors ();
+  if (argc > 1)
+    {
+      if (!load_sliw_project (argv[1]))
+	{
+	  free_wv_editors ();
+	  init_wv_editors ();
+	  new_sliw_project ();
+	}
+      else
+	loaded_fname = g_strdup (argv[1]);
+    }
+  else
+    new_sliw_project ();
 
+  /* Initialize audio.  */
+  audio_init ();
+
+  { /* Start everything up.  */
+    GdkColor foreground, background;
+    foreground.red   = 0x0000; background.red   = 0x0000;
+    foreground.green = 0xFFFF; background.green = 0x0000;
+    foreground.blue  = 0x0000; background.blue  = 0x0000;
+    create_main_window ();
+    set_render_colors (&foreground, &background);
+    gtk_window_set_default_size (GTK_WINDOW (main_window), 600, 540);
+    gtk_widget_show (main_window);
+    g_signal_connect ((gpointer) main_window, "destroy",
+		      G_CALLBACK (gtk_main_quit), NULL);
+  }
   gtk_main ();
 
+  /* Shutdown.  */
+  interface_shutdown ();
+  audio_shutdown ();
   free_wv_editors ();
-
 #ifdef G_OS_WIN32
   g_free (package_prefix);
   g_free (package_data_dir);
   g_free (package_locale_dir);
+#else
+  free (package_prefix);
+  free (package_data_dir);
+  free (package_locale_dir);
 #endif
-
   return 0;
 }
 

@@ -1,6 +1,6 @@
-# Nullsoft Installer script for Sound Studio.
+# Nullsoft Installer script for Slider.
 
-# Copyright (C) 2011, 2012 Andrew Makousky
+# Copyright (C) 2011, 2012, 2013 Andrew Makousky
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 !ifndef VERSION
   !define VERSION "test"
 !endif
-!define PRODUCT_NAME "Sound Studio"
+!define PRODUCT_NAME "Slider Wave Editor"
 
 ######################################################################
 # MUI Settings
@@ -62,10 +62,9 @@ SetCompressor /SOLID lzma
 ######################################################################
 # Registry and start menu
 
-!define SNDSTUD_KEY "Software\SoundStudio"
+!define SLIDER_KEY "Software\SliderWaveEditor"
 !define UNINSTALL_KEY \
-  "Software\Microsoft\Windows\CurrentVersion\Uninstall\SoundStudio"
-!define SMPROG_SNDSTUD "$SMPROGRAMS\${PRODUCT_NAME}"
+  "Software\Microsoft\Windows\CurrentVersion\Uninstall\SliderWaveEditor"
 
 ######################################################################
 # Install pages
@@ -103,10 +102,10 @@ InstType $(lng_Full)
 # Settings
 
 Name "${PRODUCT_NAME}"
-OutFile "sndstud-${VERSION}-setup.exe"
+OutFile "slider-${VERSION}-setup.exe"
 Caption "${PRODUCT_NAME} ${VERSION} Setup"
 InstallDir "$PROGRAMFILES\${PRODUCT_NAME}"
-InstallDirRegKey HKLM "${SNDSTUD_KEY}" "InstallDir"
+InstallDirRegKey HKLM "${SLIDER_KEY}" "InstallDir"
 RequestExecutionLevel admin
 
 ######################################################################
@@ -133,24 +132,21 @@ SectionGroup $(lng_StartDeskShortcuts) SecShortcuts
     Section $(lng_StartShortcuts) SecShortcutsStartMenu
         DetailPrint $(lng_StartShortcutsProgress)
         SectionIn 1
-        SetOutPath "${SMPROG_SNDSTUD}"
-        CreateDirectory "${SMPROG_SNDSTUD}"
-        CreateShortCut "${PRODUCT_NAME}.lnk" "$INSTDIR\bin\sndstud.exe"
-	CreateShortCut "User Manual.lnk" "$INSTDIR\share\doc\sndstud\help.txt"
-	CreateShortCut "Uninstall.lnk" "$INSTDIR\uninstall.exe"
+        SetOutPath "$SMPROGRAMS"
+        CreateShortCut "${PRODUCT_NAME}.lnk" "$INSTDIR\bin\slider.exe"
     SectionEnd
     Section $(lng_DesktopShortcut) SecShortcutsDesktop
         DetailPrint $(lng_DesktopShortcutDesc)
         SectionIn 1
         SetOutPath $DESKTOP
-        CreateShortCut "${PRODUCT_NAME}.lnk" "$INSTDIR\bin\sndstud.exe"
+        CreateShortCut "${PRODUCT_NAME}.lnk" "$INSTDIR\bin\slider.exe"
     SectionEnd
 SectionGroupEnd
 
 Section -post
     DetailPrint $(lng_RegistryProgress)
     SetOutPath "$INSTDIR"
-    WriteRegStr HKLM "${SNDSTUD_KEY}" "InstallDir" "$INSTDIR"
+    WriteRegStr HKLM "${SLIDER_KEY}" "InstallDir" "$INSTDIR"
 
     # register uninstaller
     WriteRegStr HKLM "${UNINSTALL_KEY}" "UninstallString" \
@@ -161,7 +157,7 @@ Section -post
 
     WriteRegStr HKLM "${UNINSTALL_KEY}" "DisplayName" "${PRODUCT_NAME}"
     WriteRegStr HKLM "${UNINSTALL_KEY}" "DisplayIcon" \
-                "$INSTDIR\bin\sndstud.exe,0"
+                "$INSTDIR\bin\slider.exe,0"
     WriteRegStr HKLM "${UNINSTALL_KEY}" "DisplayVersion" "${VERSION}"
 
     WriteRegDWORD HKLM "${UNINSTALL_KEY}" "NoModify" "1"
@@ -184,11 +180,11 @@ Section Uninstall
     RMDir "$INSTDIR"
 
     DetailPrint $(lng_RemoveShortcutsProgress)
-    RMDir /r "${SMPROG_SNDSTUD}"
+    Delete "$SMPROGRAMS\${PRODUCT_NAME}.lnk"
     Delete "$DESKTOP\${PRODUCT_NAME}.lnk"
 
     DetailPrint $(lng_DeleteRegistryProgress)
-    DeleteRegKey HKLM "${SNDSTUD_KEY}"
+    DeleteRegKey HKLM "${SLIDER_KEY}"
     DeleteRegKey HKLM "${UNINSTALL_KEY}"
 SectionEnd
 

@@ -1,4 +1,4 @@
-# English language strings for Sound Studio's NSIS installer.
+# English language strings for Slider's NSIS installer.
 
 # Copyright (C) 2013 Andrew Makousky
 # All rights reserved.

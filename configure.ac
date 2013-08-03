@@ -28,7 +28,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-AC_INIT(sndstud, 0.1.2)
+AC_INIT(slider, 0.1.3)
 AC_CONFIG_AUX_DIR(build-aux)
 AC_CANONICAL_HOST
 AM_INIT_AUTOMAKE
@@ -39,11 +39,13 @@ AC_ISC_POSIX
 AC_PROG_CC
 AC_HEADER_STDC
 
+# Configure GTK+.
 pkg_modules="gtk+-2.0 >= 2.0.0"
 PKG_CHECK_MODULES(GTK, [$pkg_modules])
-PACKAGE_CFLAGS="$PACKAGE_CFLAGS $GTK_CFLAGS"
-PACKAGE_LIBS="$PACKAGE_LIBS $GTK_LIBS"
+PACKAGE_CFLAGS="$PACKAGE_CFLAGS "'$(GTK_CFLAGS)'
+PACKAGE_LIBS="$PACKAGE_LIBS "'$(GTK_LIBS)'
 
+# Check for Microsoft Windows.
 win32=no
 case "${host_os}" in
   *mingw* | pw32* | cygwin*)
@@ -54,7 +56,7 @@ case "${host_os}" in
     fi
     PACKAGE_CFLAGS="$PACKAGE_CFLAGS -mms-bitfields"
 esac
-AM_CONDITIONAL(WITH_WIN32, test x"$win32" = "xyes")
+AM_CONDITIONAL(WITH_WIN32, test "x$win32" = "xyes")
 WIN_VERSION=`echo $VERSION | $AWK '
 BEGIN { FS = "." }
 {
@@ -73,10 +75,12 @@ BEGIN { FS = "." }
 AC_SUBST(WIN_VERSION)
 AC_DEFINE_UNQUOTED(WIN_VERSION, $WIN_VERSION,
   [Version string for the Windows resource script.])
-AC_SUBST(PACKAGE_CFLAGS)
-AC_SUBST(PACKAGE_LIBS)
 
-GETTEXT_PACKAGE=sndstud
+# Configure BinReloc.
+AM_BINRELOC
+
+# Configure Gettext.
+GETTEXT_PACKAGE=slider
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package.])
 
@@ -90,6 +94,45 @@ POT_BUGS_ADDRESS="'andrew@home-dell-2300'"
 AC_SUBST(POT_BUGS_ADDRESS)
 
 AM_GLIB_GNU_GETTEXT
+
+# Audio configuration.  It doesn't have to be this hard, but it's
+# currently nicer to have JACK support directly compiled in rather
+# than indirectly through PortAudio... audio connection graphs are
+# easier to draw this way.
+AC_ARG_WITH(portaudio,
+	AC_HELP_STRING([--without-portaudio],
+	[disable audio output support]),
+	[if test "x$withval" = "xno"; then
+	   USE_PORTAUDIO=0
+	 else
+	   USE_PORTAUDIO=1
+	 fi], [USE_PORTAUDIO=1])
+AC_ARG_WITH(jack,
+	AC_HELP_STRING([--with-jack],
+	[use JACK for audio output rather than PortAudio]),
+	[if test "x$withval" = "xno"; then
+	   USE_JACK=0
+	 else
+	   USE_JACK=1
+	 fi], [USE_JACK=0])
+if test $USE_JACK -eq 1; then
+  AC_DEFINE(USE_JACK, 1, [Use JACK for audio output.])
+  pkg_modules="jack >= 0.118.0"
+  PKG_CHECK_MODULES(JACK, [$pkg_modules])
+  AUDIO_CFLAGS='$(JACK_CFLAGS)'
+  AUDIO_LIBS='$(JACK_LIBS)'
+elif test $USE_PORTAUDIO -eq 1; then
+  AC_DEFINE(USE_PORTAUDIO, 1, [Use PortAudio for audio output.])
+  pkg_modules="portaudio-2.0 >= 19"
+  PKG_CHECK_MODULES(PortAudio, [$pkg_modules])
+  AUDIO_CFLAGS='$(PortAudio_CFLAGS)'
+  AUDIO_LIBS='$(PortAudio_LIBS)'
+fi
+PACKAGE_CFLAGS="$PACKAGE_CFLAGS $AUDIO_CFLAGS"
+PACKAGE_LIBS="$PACKAGE_LIBS $AUDIO_LIBS"
+
+AC_SUBST(PACKAGE_CFLAGS)
+AC_SUBST(PACKAGE_LIBS)
 
 AC_CONFIG_FILES([
 Makefile

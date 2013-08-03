@@ -1,0 +1,341 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Andrew Makousky
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: andrew@home-dell-2300\n"
+"POT-Creation-Date: 2013-08-03 08:37-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/interface.c:123
+msgid "_File"
+msgstr ""
+
+#: src/interface.c:124
+msgid "_Transport"
+msgstr ""
+
+#: src/interface.c:125
+msgid "_Help"
+msgstr ""
+
+#: src/interface.c:126
+msgid "_New"
+msgstr ""
+
+#: src/interface.c:127
+msgid "Create a new file"
+msgstr ""
+
+#: src/interface.c:129
+msgid "_Open..."
+msgstr ""
+
+#: src/interface.c:130
+msgid "Open an existing file"
+msgstr ""
+
+#: src/interface.c:132
+msgid "_Save"
+msgstr ""
+
+#: src/interface.c:133
+msgid "Save the current file"
+msgstr ""
+
+#: src/interface.c:135
+msgid "Save _As..."
+msgstr ""
+
+#: src/interface.c:136
+msgid "Save the current file with a new name"
+msgstr ""
+
+#: src/interface.c:138
+msgid "_Export..."
+msgstr ""
+
+#: src/interface.c:139
+msgid "Export a Nyquist script that generates this waveform"
+msgstr ""
+
+#. { "Preferences", NULL, _("_Preferences"), NULL,
+#. _("Preferences"),
+#. G_CALLBACK (activate_action) },
+#: src/interface.c:144
+msgid "_Quit"
+msgstr ""
+
+#: src/interface.c:145
+msgid "Leave Slider Wave Editor"
+msgstr ""
+
+#: src/interface.c:147
+msgid "_Play"
+msgstr ""
+
+#: src/interface.c:148
+msgid "Enable playback of the current waveform"
+msgstr ""
+
+#: src/interface.c:150
+msgid "_Stop"
+msgstr ""
+
+#: src/interface.c:151
+msgid "Stop playback of the current waveform"
+msgstr ""
+
+#: src/interface.c:153
+msgid "_Manual"
+msgstr ""
+
+#: src/interface.c:154
+msgid "Display the manual"
+msgstr ""
+
+#: src/interface.c:156
+msgid "_About"
+msgstr ""
+
+#: src/interface.c:157
+msgid "Display program name and copyright information"
+msgstr ""
+
+#. gtk_container_set_border_width (GTK_CONTAINER (main_window), 8);
+#: src/interface.c:164 src/interface.c:1221 src/wv_editors.c:695
+#: src/wv_editors.c:767 src/audio.c:121 src/audio.c:329
+msgid "Slider Wave Editor"
+msgstr ""
+
+#: src/interface.c:205
+msgid "Save As"
+msgstr ""
+
+#: src/interface.c:221 src/callbacks.c:79 src/callbacks.c:395
+#: src/callbacks.c:422
+msgid "Play"
+msgstr ""
+
+#: src/interface.c:237 src/interface.c:419
+msgid "Fundamental Set: "
+msgstr ""
+
+#: src/interface.c:401
+msgid "1st Harmonic Drop"
+msgstr ""
+
+#: src/interface.c:409 src/interface.c:882
+msgid "Multiply Amplitudes"
+msgstr ""
+
+#: src/interface.c:424 src/interface.c:478 src/interface.c:535
+#: src/interface.c:566 src/interface.c:613
+msgid "Add"
+msgstr ""
+
+#: src/interface.c:429 src/interface.c:483 src/interface.c:540
+#: src/interface.c:571 src/interface.c:618
+msgid "Remove"
+msgstr ""
+
+#: src/interface.c:447
+msgid "Fundamental Frequency: "
+msgstr ""
+
+#: src/interface.c:473 src/interface.c:608
+msgid "Precision Slider: "
+msgstr ""
+
+#: src/interface.c:514
+msgid "Harmonic "
+msgstr ""
+
+#: src/interface.c:530
+msgid "Harmonic Window: "
+msgstr ""
+
+#: src/interface.c:561
+msgid "Harmonic: "
+msgstr ""
+
+#: src/interface.c:585
+msgid "Amplitude: "
+msgstr ""
+
+#: src/interface.c:899
+msgid "Maximum amplitude: "
+msgstr ""
+
+#: src/interface.c:1151
+msgid "Slider Wave Editor Manual"
+msgstr ""
+
+#: src/interface.c:1226
+msgid ""
+"Slider is an interactive program designed to help you synthesize sound "
+"effects by building them from harmonics and by combining multiple non-"
+"harmonic sine waves."
+msgstr ""
+
+#: src/interface.c:1230
+msgid "About Slider Wave Editor"
+msgstr ""
+
+#: src/callbacks.c:107
+msgid ""
+"<b><big>Save changes to the current file before closing?</big></b>\n"
+"\n"
+"If you close without saving, your changes will be discarded."
+msgstr ""
+
+#: src/callbacks.c:110
+msgid "Close _without saving"
+msgstr ""
+
+#: src/callbacks.c:114
+msgid ""
+"<b><big>Save changes to the current file before continuing?</big></b>\n"
+"\n"
+"If you continue without saving, your changes will be discarded."
+msgstr ""
+
+#: src/callbacks.c:117
+msgid "Continue _without saving"
+msgstr ""
+
+#: src/callbacks.c:152
+msgid "Save File"
+msgstr ""
+
+#: src/callbacks.c:158
+msgid "Slider Project Files"
+msgstr ""
+
+#: src/callbacks.c:208
+msgid "Open File"
+msgstr ""
+
+#: src/callbacks.c:354
+msgid "Export Nyquist File"
+msgstr ""
+
+#: src/callbacks.c:359
+msgid "_Export"
+msgstr ""
+
+#: src/callbacks.c:386 src/callbacks.c:413
+msgid "Stop"
+msgstr ""
+
+#: src/support.c:132 src/support.c:159
+#, c-format
+msgid "Couldn't find pixmap file: %s"
+msgstr ""
+
+#: src/wv_editors.c:592
+#, c-format
+msgid ""
+"<b><big>An error occurred while saving your file.</big></b>\n"
+"\n"
+"%s"
+msgstr ""
+
+#: src/wv_editors.c:622
+msgid ""
+"; This is a Nyquist Lisp file.\n"
+"; You can use this with Audacity to generate a waveform.\n"
+"; To do this, select a portion of time on a track, then go to \"Effect\n"
+"; > Nyquist Prompt...\" and paste the contents of this file in.\n"
+msgstr ""
+
+#: src/wv_editors.c:655
+#, c-format
+msgid ""
+"<b><big>An error occurred while exporting your file.</big></b>\n"
+"\n"
+"%s"
+msgstr ""
+
+#: src/wv_editors.c:692
+#, c-format
+msgid ""
+"<b><big>Your file could not be opened.</big></b>\n"
+"\n"
+"%s"
+msgstr ""
+
+#: src/wv_editors.c:765
+#, c-format
+msgid ""
+"<b><big>A syntax error was found in your file.</big></b>\n"
+"\n"
+"A blank template will be loaded instead."
+msgstr ""
+
+#: src/wv_editors.c:1008
+#, c-format
+msgid ""
+"<b><big>Are you sure you want to sample %u points?</big></b>\n"
+"\n"
+"This may take a while, and Slider will be unresponsive until the computation "
+"completes."
+msgstr ""
+
+#: src/audio.c:119
+#, c-format
+msgid ""
+"<b><big>An audio error occurred.</big></b>\n"
+"\n"
+"%s"
+msgstr ""
+
+#: src/audio.c:288
+msgid "Failed to open session with JACK."
+msgstr ""
+
+#: src/audio.c:290
+msgid "Unable to connect to JACK server."
+msgstr ""
+
+#: src/audio.c:302
+msgid "No more output ports available."
+msgstr ""
+
+#: src/audio.c:307
+msgid "Cannot activate client."
+msgstr ""
+
+#: src/audio.c:326
+#, c-format
+msgid ""
+"<b><big>An error occurred while initializing JACK.</big></b>\n"
+"\n"
+"%s"
+msgstr ""
+
+#: src/audio.c:401
+#, c-format
+msgid ""
+"<b><big>Slider was disconnected from JACK.</big></b>\n"
+"\n"
+"You will have to save your work and restart Slider to reconnect."
+msgstr ""
+
+#: src/audio.c:424
+#, c-format
+msgid "Sorry, but playback is not supported in this version."
+msgstr ""
+
+#: src/audio.c:425
+msgid "Not implemented"
+msgstr ""

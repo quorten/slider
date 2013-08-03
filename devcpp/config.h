@@ -1,8 +1,17 @@
+/* Use binary relocation code suitable for FreeBSD. */
+/* #undef BR_FREEBSD */
+
+/* Use Linux procfs for binary relocation. */
+/* #undef BR_LINUX_PROCFS */
+
+/* Enable binary relocation support. */
+/* #undef ENABLE_BINRELOC */
+
 /* always defined to indicate that i18n is enabled */
 #define ENABLE_NLS 1
 
 /* Gettext package. */
-#define GETTEXT_PACKAGE "sndstud"
+#define GETTEXT_PACKAGE "slider"
 
 /* Define to 1 if you have the `bind_textdomain_codeset' function. */
 #define HAVE_BIND_TEXTDOMAIN_CODESET 1
@@ -47,28 +56,34 @@
 #define HAVE_UNISTD_H 1
 
 /* Name of package */
-#define PACKAGE "sndstud"
+#define PACKAGE "slider"
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT ""
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "sndstud"
+#define PACKAGE_NAME "slider"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "sndstud 0.1.2"
+#define PACKAGE_STRING "slider 0.1.3"
 
 /* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "sndstud"
+#define PACKAGE_TARNAME "slider"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.1.2"
+#define PACKAGE_VERSION "0.1.3"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
+/* Use JACK for audio output. */
+/* #undef USE_JACK */
+
+/* Use PortAudio for audio output. */
+#define USE_PORTAUDIO 1
+
 /* Version number of package */
-#define VERSION "0.1.2"
+#define VERSION "0.1.3"
 
 /* Version string for the Windows resource script. */
-#define WIN_VERSION 0,1,2,0
+#define WIN_VERSION 0,1,3,0

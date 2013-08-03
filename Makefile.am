@@ -35,32 +35,35 @@ EXTRA_DIST = \
 	HACKING \
 	TRANSLATORS \
 	autogen.sh \
-	sound-studio.glade \
-	sound-studio.gladep \
+	design.glade \
+	design.gladep \
 	devcpp/config.h \
 	devcpp/config.h.in \
-	devcpp/sndstud.dev \
-	devcpp/sndstud_private.h \
-	devcpp/sndstud_private.rc \
+	devcpp/slider.dev \
+	devcpp/slider_private.h \
+	devcpp/slider_private.rc \
+	m4macros/binreloc.m4 \
 	msvc/config.h \
 	msvc/config.h.in \
-	msvc/sndstud.dsp \
-	msvc/sndstud.dsw \
-	msvc/sndstud.exe.config \
-	msvc/sndstud.manifest \
-	msvc/sndstud.sln \
-	msvc/sndstud.vcproj \
+	msvc/slider.dsp \
+	msvc/slider.dsw \
+	msvc/slider.exe.config \
+	msvc/slider.manifest \
+	msvc/slider.sln \
+	msvc/slider.vcproj \
 	old-plans/Readme.txt \
 	old-plans/layout.svg \
 	po/README.translators \
 	svgs/README \
 	svgs/install-header.bmp \
 	svgs/install-header.svg \
-	svgs/sndstud.ico \
-	svgs/sound-studio-icon.svg
+	svgs/app.ico \
+	svgs/app_legacy.ico \
+	svgs/app.svg \
+	svgs/icons.svg
 
 docdir = $(datadir)/doc/@PACKAGE@
-doc_DATA = COPYING NEWS README
+doc_DATA = BUGS NEWS COPYING README THANKS TODO
 
 install-data-local:
 	@$(NORMAL_INSTALL)

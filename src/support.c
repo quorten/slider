@@ -1,6 +1,6 @@
 /* Miscellaneous support functions.
 
-Copyright (C) 2011, 2012 Andrew Makousky
+Copyright (C) 2011, 2012, 2013 Andrew Makousky
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -28,11 +28,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGE.  */
 
-/**
- * @file
- * Miscellaneous support functions.
- */
-
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -49,6 +44,13 @@ DAMAGE.  */
 
 #include "support.h"
 
+/**
+ * This function returns a widget in a component created by Glade.
+ *
+ * Call it with the toplevel widget in the component (i.e. a window/dialog),
+ * or alternatively any widget in the component, and the name of the widget
+ * you want returned.
+ */
 GtkWidget *
 lookup_widget (GtkWidget * widget, const gchar * widget_name)
 {
@@ -78,7 +80,9 @@ lookup_widget (GtkWidget * widget, const gchar * widget_name)
 
 static GList *pixmaps_directories = NULL;
 
-/* Use this function to set the directory containing installed pixmaps.  */
+/**
+ * Use this function to set the directory containing installed pixmaps.
+ */
 void
 add_pixmap_directory (const gchar * directory)
 {
@@ -86,7 +90,9 @@ add_pixmap_directory (const gchar * directory)
 					g_strdup (directory));
 }
 
-/* This is an internally used function to find pixmap files.  */
+/**
+ * This is an internally used function to find pixmap files.
+ */
 static gchar *
 find_pixmap_file (const gchar * filename)
 {
@@ -106,7 +112,10 @@ find_pixmap_file (const gchar * filename)
   return NULL;
 }
 
-/* This is an internally used function to create pixmaps.  */
+/**
+ * This is an internally used function to create pixmaps in the
+ * interface.
+ */
 GtkWidget *
 create_pixmap (GtkWidget * widget, const gchar * filename)
 {
@@ -129,7 +138,10 @@ create_pixmap (GtkWidget * widget, const gchar * filename)
   return pixmap;
 }
 
-/* This is an internally used function to create pixmaps.  */
+/**
+ * This is an internally used function to create pixbufs in the
+ * interface.
+ */
 GdkPixbuf *
 create_pixbuf (const gchar * filename)
 {
@@ -159,7 +171,9 @@ create_pixbuf (const gchar * filename)
   return pixbuf;
 }
 
-/* This is used to set ATK action descriptions.  */
+/**
+ * This is used to set ATK action descriptions.
+ */
 void
 glade_set_atk_action_description (AtkAction * action,
 				  const gchar * action_name,

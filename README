@@ -1,17 +1,17 @@
-Sound Studio README
-*******************
+Slider Wave Editor README
+*************************
 
-Copyright (C) 2011, 2012 Andrew Makousky
+Copyright (C) 2011, 2012, 2013 Andrew Makousky
 All rights reserved.
 See the end of this file for license conditions.
 
-Sound Studio is an interactive program designed to help you synthesize
-sound effects by building them from harmonics and combining multiple
-combinations of non-harmonic sine waves.
+Slider is an interactive program designed to help you synthesize sound
+effects by building them from harmonics and by combining multiple
+non-harmonic sine waves.
 
-For instructions on how to build Sound Studio, see the file named
-INSTALL.  The usual "./configure; make; make install" process should
-work for most systems.
+For instructions on how to build Slider, see the file named INSTALL.
+The usual "./configure; make; make install" process should work for
+most systems.
 
 The file AUTHORS contains a list of code contributors to this project.
 For the list of translators, see the file TRANSLATORS.  Additional
@@ -19,8 +19,8 @@ contributors of ideas and smaller changes are listed in the file
 THANKS.
 
 For a list of user visible changes, see the file NEWS.  "ChangeLog"
-contains a list of source code changes.  "COPYING" contains Sound
-Studio's license: the GNU General Public License, version 3.
+contains a list of source code changes.  "COPYING" contains Slider's
+license: the Simplified BSD License.
 
 "autogen.sh" is used to generate files related to the build system.
 "aclocal.m4" is used by "configure" as a local list of macros used
@@ -33,12 +33,9 @@ generated from.
 "Makefile.in".  "Makefile.in" is processed by "configure" to create
 the project makefile.
 
-"sound-studio.glade" and "sound-studio.gladep" are the Glade project
-files that were used to generate some of the source code.  A lot of
-the typically generated source code was modified (slightly), so don't
-try to regenerate it unless you know what you are doing.  (Try running
-"diff" on the generated and non-generated source files with all
-indentation removed.)
+"design.glade" and "design.gladep" are the Glade project files that
+were used to generate some of the source code.  These files are
+heavily out of date with the current code base.
 
 Here is a brief overview of the subdirectories:
 build-aux/      Auxiliary build tools for Autoconf, Automake, and
@@ -47,12 +44,13 @@ devcpp/         Project files and other sources for DevC++
 docs/           Help, reference, and research documentation
 etc/            Miscellaneous files of interest
 msvc/           Project files and other sources for MSVC
-old-plans/      Historic exhibit from Sound Studio 0.1
+old-plans/      Historic exhibit from Sound Studio 0.1 (old name of
+                Slider Wave Editor)
 packaging/      Files for building software packages for various
                 operating systems
-pixmaps/        Pixmaps (including SVG renders) for Sound Studio
+pixmaps/        Pixmaps (including SVG renders) for Slider
 po/             Localization files
-src/            Sound Studio source code
+src/            Slider source code
 svgs/           Scalable Vector Graphics source images (including
                 platform-dependent image generations)
 

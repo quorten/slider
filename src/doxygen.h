@@ -1,6 +1,6 @@
 /* Main page comment for Doxygen.
 
-Copyright (C) 2011, 2012 Andrew Makousky
+Copyright (C) 2011, 2012, 2013 Andrew Makousky
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -29,12 +29,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGE.  */
 
 /**
- * @mainpage Sound Studio Architecture
+ * @mainpage Slider Wave Editor Architecture
  *
- * Sound Studio's source code makes a central distinction between two
+ * Slider's source code makes a central distinction between two
  * different facilities: the user interface and the internal data
  * model.  The following information contains some discussion on each
- * of those topics.
+ * of those topics.  Make sure you've read the user documentation and
+ * are familiar with how Slider works; otherwise, you'll have a bit of
+ * trouble understanding the developer documentation.
  *
  * @section uiexpl_sec The User Interface
  * Since this program was primarily intended to be interactive, the
@@ -60,13 +62,13 @@ DAMAGE.  */
  * was drawn out in Inkscape, then later created within Glade.  The
  * Glade source files are included within this source distribution.
  * The conventional editing facilities of Glade made it not very
- * suitable to store the user interface from within an XML file then
- * load that data from the file.  So instead, a slightly older version
- * of Glade was used which had the feature of being able to generate C
- * code that builds the user interface.  This code was then modified
- * as necessary.  Because of the modifications, you should not try to
- * regenerate the code from the Glade project file unless you know
- * what you are doing.
+ * suitable to store this dynamic user interface from within an XML
+ * file then load that data from the file.  So instead, a slightly
+ * older version of Glade was used which had the feature of being able
+ * to generate C code that builds the user interface.  This code was
+ * then modified as necessary.  Because of the modifications, you
+ * should not try to regenerate the code from the Glade project file
+ * unless you know what you are doing.
  *
  * The editing area contains one window that is used to edit the
  * fundamental frequency, and a series of one or more other windows
@@ -84,10 +86,10 @@ DAMAGE.  */
  * windows.
  *
  * Moving on from here, you should be able to look at the source code
- * in interface.c, interface.h, and wv_editors.h for the
- * implementation of the user interface.
+ * in interface.h and wv_editors.h for the implementation of the user
+ * interface.
  *
- * The following functions from wv_editors.c are relevant to the user
+ * The following functions from wv_editors.h are relevant to the user
  * interface: free_slider_data(), add_wv_editor(), remove_wv_editor(),
  * restore_prec_sliders(), select_fund_freq(), unselect_fund_freq().
  *
@@ -119,10 +121,10 @@ wv_all_freqs->d[i].harmonics->d[j].harmc_num;
  * numbers starting from one.
  *
  * Many of the functions take a parameter to specify which fundamental
- * frequency they should work with.  For the functions that have this
- * behavior, it should be preserved, because it allows such functions
- * to work with a fundamental frequency other than the one which is
- * selected.  This is important for file loading.
+ * frequency they should work with.  The reason why these functions
+ * have this behavior rather than using ::g_fund_set is because it
+ * allows them to work with a fundamental frequency other than the one
+ * which is currently selected.  This is important for file loading.
  *
  * Moving on from here, you should be able to look at the source code
  * in the rest of this program.  I hope you found this document

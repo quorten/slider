@@ -3,5 +3,6 @@
 
 SUBDIRS = reference research
 
-docdir = $(datadir)/doc/@PACKAGE@
-dist_doc_DATA = help.txt
+## docdir = $(datadir)/doc/@PACKAGE@
+## dist_doc_DATA = help.txt
+dist_pkgdata_DATA = help.txt

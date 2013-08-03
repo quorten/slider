@@ -1,4 +1,4 @@
-# Spanish language strings for Sound Studio's NSIS installer.
+# Spanish language strings for Slider's NSIS installer.
 
 # Copyright (C) 2013 Andrew Makousky
 # All rights reserved.

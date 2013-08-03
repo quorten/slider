@@ -1,24 +1,24 @@
-How to build a Windows Installer for Sound Studio
-*************************************************
+How to build a Windows Installer for Slider Wave Editor
+*******************************************************
 
 Copyright (C) 2013 Andrew Makousky
 All rights reserved.
 See the end of this file for license conditions.
 
-Sound Studio supports building a Windows Installer through two
-different mechanisms.  You can either build a Windows installer using
-Nullsoft Scriptable Install System or by using Windows Installer.
-This file mainly documents the prerequisites that you must satisfy to
-build a Windows installer.  The Nullsoft Installer build process is
-fully automatic once you satisfy the prerequisites; on the other hand,
-the Windows Installer build process is only mostly automatic.
+Slider supports building a Windows Installer through two different
+mechanisms.  You can either build a Windows installer using Nullsoft
+Scriptable Install System or by using Windows Installer.  This file
+mainly documents the prerequisites that you must satisfy to build a
+Windows installer.  The Nullsoft Installer build process is fully
+automatic once you satisfy the prerequisites; on the other hand, the
+Windows Installer build process is only mostly automatic.
 
 General Prerequisites
 *********************
 
-Sound Studio depends on the GTK+ runtime binaries for Windows.  If you
-have not done so already, you should download the GTK+ 2.12.10 bundle
-for Windows that was recommended in the INSTALL file.  If you want to
+Slider depends on the GTK+ runtime binaries for Windows.  If you have
+not done so already, you should download the GTK+ 2.12.10 bundle for
+Windows that was recommended in the INSTALL file.  If you want to
 build an installer using Nullsoft Scriptable Install System, then you
 will need to download the corresponding development tools
 <http://nsis.sourceforge.net>.  If you want to build a Windows MSI
@@ -26,18 +26,26 @@ Installer package, you will need the Windows Platform SDK.  Once you
 have one or both of those, you will need to select a subset of the
 files from the bundle for distribution.  There is a a file named
 `2.12.10-dist.txt' that lists the recommended files for distributing
-with Sound Studio.  You should use this file to build a directory
-named `2.12.10-dist' within the `packaging' directory.  For example:
+with Slider.  You should use this file to build a directory named
+`2.12.10-dist' within the `packaging' directory.  For example:
 
   cd ${top_srcdir}/packaging
   ln -s /.../gtk+-bundle-2.12.10.zip .
   make 2.12.10-dist
 
+If you have PortAudio enabled, you should copy the PortAudio DLL
+(`libportaudio-2.dll' for MinGW, `portaudio_x86.dll' for MSVC 32-bit)
+into the `packaging' directory.  The build rules for `2.12.10-dist'
+will handle copying it into the runtime bundle directory.  Compiling
+with JACK on Windows has not been tested yet, but if you do compile
+with JACK, you will need to copy all of its binary dependencies into
+the proper places within `2.12.10-dist'.
+
 Make sure you have your build configuration set up to compile release
 binaries.  In particular, if you are using MinGW/MSYS, you should pass
 the switch
 
-  CFLAGS='-Wl,-subsystem=windows'
+  LDFLAGS='-Wl,-subsystem=windows,-s'
 
 to the `configure' script, just as was recommended in the file
 `INSTALL'.
@@ -60,59 +68,54 @@ following command:
 Building a Windows MSI Installer Package
 ****************************************
 
-Most Free Software and open-source software projects either use
-Nullsoft Install System or Inno Setup to install binaries on Microsoft
-Windows operating systems.  However, if you are strange enough to not
-only want to use a Windows Installer, but also use Microsoft Visual
-Studio to compile your projects, then there are several difficult
-hoops that you are forcing yourself to jump through in order to get
-distributable binaries.  You have been warned.
+Building a Windows MSI installer seems non-trivial for most
+programmers because the mainstream Windows installer tools that
+operate in a compiler mode like Inno Setup or Nullsoft Install System
+do not produce MSI files.  To mitigate this issue and still be able to
+build Windows installers, Slider uses a special tool called `msi-tool'
+to facilitate the automation process.
 
-First of all, Nullsoft Install System and Inno Setup are
-compiler-based, which means you, as a setup developer, can benefit
-from the many automated processes that they provide, without being
-aware that there are worse ways to build an installer.  However,
-Windows Installer files are principally specified as a database of
-tables that may also have binary data attached to them.  Microsoft's
-Platform SDK will provide you with programs to work with this
-database, but it is your responsibility to either obtain third-party
-software that will facilitate automated Windows Installer creation
-processes or make your own in-house automation tools.
+`msi-tool' was not originally intended to be an automated installer
+build system.  Rather, it was intended to only automate the most
+difficult tasks for creating a Windows Installer.  Thus, some manual
+setup is needed before you can use it.  Once you have the manual setup
+done, you will be able to use the integrated rules for `msi-tool' that
+are within Slider's build system.
 
-The worst part of creating a Windows Installer without automation
-tools is specifying all of the files that must be installed and how
-they are related to "Features."  For this, I created my own automation
-application called `msi-tool'.  `msi-tool' was not originally intended
-to be an automated installer build system.  Rather, it was intended to
-only automate the most difficult tasks for creating a Windows
-Installer.  Thus, some manual setup is needed before you can use it.
-Once you have the manual setup done, you will be able to use the
-integrated rules for `msi-tool' that are within Sound Studio's build
-system.
+Prerequisites
+=============
 
-First of all, you have to have prerequisites satisfied.  First make
-sure you have installed the Windows Platform SDK.  After you have that
-done, you will also need to manually install some tools that you will
-use to work with Windows Installers.  First locate the installation
-directory for the Windows Platform SDK.  Navigate to the `Bin'
-subdirectory.  There will be two Windows Installer packages of
-interest within that directory: `Orca.Msi' and `MsiVal2.Msi'.  Install
-both of them.  To be able to use the automated build rules, you need
-to make sure your PATH environment variable is set up to be able to
-use both the Windows Platform SDK tools and POSIX utilities.  If you
-are using MSYS or Cygwin for your POSIX utilities, then you will have
-to make sure that you are not building Sound Studio's Windows
-Installer package in any subdirectory within the root directories that
-MSYS and Cygwin use.  Otherwise, there will be problems passing the
-current working directory to the Windows developer tools that the
-build automation rules invoke.
+First of all, you have to have prerequisites satisfied:
 
-Next you will do the manual setup for Sound Studio.  Start by copying
-the UI sample MSI from the Windows Platform SDK installation, located
-at the subdirectory `Samples\SysMgmt\Msi\database\UISample.Msi'.  Put
-the copy in the Sound Studio's `packaging/' directory and rename it to
-`Schema.msi'.  Next, open `Schema.msi' with Orca and make the
-following changes:
+1. Install the Windows Platform SDK
+
+2. Install the installer tools from the Windows Platform SDK (yeah,
+like installing the SDK didn't really complete the installation).
+Find the installation directory for the Windows Platform SDK (such as
+"C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2").
+There will be two Windows Installer packages within the `Bin'
+subdirectory: `Orca.Msi' and `MsiVal2.Msi'.  Install both of them.
+
+3. To be able to use the automated build rules, you need to make sure
+your PATH environment variable is set up to be able to use both the
+Windows Platform SDK tools and POSIX utilities.  If you are using MSYS
+or Cygwin for your POSIX utilities, then you will have to make sure
+that you are not building Slider's Windows Installer package in any
+subdirectory within the root directories that MSYS and Cygwin use.
+Otherwise, there will be problems passing the current working
+directory to the Windows developer tools that the build automation
+rules invoke.
+
+4. Install `msi-tool' so that the program is on your PATH.
+
+Preparing the installer source files
+====================================
+
+Next you will do the manual setup for Slider.  Start by copying the UI
+sample MSI from the Windows Platform SDK installation, located at the
+subdirectory `Samples\SysMgmt\Msi\database\UISample.Msi'.  Put the
+copy in Slider's `packaging/' directory and rename it to `Schema.msi'.
+Next, open `Schema.msi' with Orca and make the following changes:
 
   * In the "Control" table, select the table row that contains
     "VerifyRemoveDlg" in the "Dialog" column and "Title" in the
@@ -136,7 +139,7 @@ type:
 
 and a Windows Installer package will be automatically built and
 validated.  Note that the Windows Installer automatic build system
-within Sound Studio is slightly less stable than the build system for
+within Slider is slightly less stable than the build system for
 Nullsoft Installer.  The build rules are largely based off of the
 documentation for `msi-tool', so if anything fails, read that
 documentation carefully for more information.  Note that the automated
@@ -145,11 +148,14 @@ descriptions to the features in the "Feature" table, but strictly
 speaking, you don't have to, and if you don't, you will still get a
 working installer.
 
+Microsoft Visual Studio
+=======================
+
 If you compile with MSVC, you will have to manually put the
 MSVC-compiled binary within the installer preparation directory named
-`_nsis'.  When you compile with MSVC, make sure you compile a Release
-binary.  The release configuration is set up so that Sound Studio will
-be static-linked to the Microsoft C Runtime libraries by default.
+`instdir'.  When you compile with MSVC, make sure you compile a
+Release binary.  The release configuration is set up so that Slider
+will be static-linked to the Microsoft C Runtime libraries by default.
 Here are a few reasons why.  If you choose the shared C Runtime, you
 will need to make sure the target computer has the runtime libraries.
 There are two ways to satisfy this need.  You can either install the

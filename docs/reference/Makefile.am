@@ -6,10 +6,11 @@ EXTRA_DIST = abbrevs.txt Doxyfile html
 SRC = ../../src
 
 if MAINTAINER_MODE
-noinst_DATA = html
+html: Doxyfile $(SRC)/*.c $(SRC)/*.h
+	doxygen
 endif
 
-doxygen html: Doxyfile $(SRC)/*.c $(SRC)/*.h
+doxygen: Doxyfile $(SRC)/*.c $(SRC)/*.h
 	doxygen
 
 maintainer-clean:

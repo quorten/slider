@@ -1,14 +1,14 @@
-# Spanish translations for Sound Studio.
+# Spanish translations for Slider Wave Editor.
 # Copyright (C) 2011 Andrew Makousky
-# This file is distributed under the same license as Sound Studio.
+# This file is distributed under the same license as Slider.
 # Andrew Makousky <andrew@example.com>, 2011.
-#
+# 
 msgid ""
 msgstr ""
-"Project-Id-Version: Sound Studio 1.0\n"
+"Project-Id-Version: Slider 1.0\n"
 "Report-Msgid-Bugs-To: andrew@home-dell-2300\n"
-"POT-Creation-Date: 2013-01-08 05:36-0600\n"
-"PO-Revision-Date: 2012-12-30 15:39-0600\n"
+"POT-Creation-Date: 2013-08-03 08:37-0500\n"
+"PO-Revision-Date: 2013-06-13 23:46-0500\n"
 "Last-Translator: <andrew@example.com>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -16,101 +16,249 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/interface.c:99
-msgid "Sound Studio"
-msgstr "Estudio del Sonido"
+#: src/interface.c:123
+msgid "_File"
+msgstr "_Archivo"
 
-#: src/interface.c:115
-msgid "Save"
-msgstr "Guardar"
-
-#: src/interface.c:120
-msgid "Export"
-msgstr "Exportar"
+#: src/interface.c:124
+msgid "_Transport"
+msgstr "_Transportar"
 
 #: src/interface.c:125
+msgid "_Help"
+msgstr "A_yuda"
+
+#: src/interface.c:126
+msgid "_New"
+msgstr "_Nuevo"
+
+#: src/interface.c:127
+msgid "Create a new file"
+msgstr "Crear un archivo nuevo"
+
+#: src/interface.c:129
+msgid "_Open..."
+msgstr "_Abrir..."
+
+#: src/interface.c:130
+msgid "Open an existing file"
+msgstr "Abrir un archivo existente"
+
+#: src/interface.c:132
+msgid "_Save"
+msgstr "_Guardar"
+
+#: src/interface.c:133
+msgid "Save the current file"
+msgstr "Guardar el archivo corriente"
+
+#: src/interface.c:135
+msgid "Save _As..."
+msgstr "Guardar _como..."
+
+#: src/interface.c:136
+msgid "Save the current file with a new name"
+msgstr ""
+
+#: src/interface.c:138
+msgid "_Export..."
+msgstr "_Exportar..."
+
+#: src/interface.c:139
+msgid "Export a Nyquist script that generates this waveform"
+msgstr ""
+
+#. { "Preferences", NULL, _("_Preferences"), NULL,
+#. _("Preferences"),
+#. G_CALLBACK (activate_action) },
+#: src/interface.c:144
+msgid "_Quit"
+msgstr "_Salir"
+
+#: src/interface.c:145
+msgid "Leave Slider Wave Editor"
+msgstr ""
+
+#: src/interface.c:147
+msgid "_Play"
+msgstr "_Jugar"
+
+#: src/interface.c:148
+msgid "Enable playback of the current waveform"
+msgstr ""
+
+#: src/interface.c:150
+msgid "_Stop"
+msgstr "_Acabar"
+
+#: src/interface.c:151
+msgid "Stop playback of the current waveform"
+msgstr ""
+
+#: src/interface.c:153
+msgid "_Manual"
+msgstr ""
+
+#: src/interface.c:154
+msgid "Display the manual"
+msgstr ""
+
+#: src/interface.c:156
+msgid "_About"
+msgstr "_Acerca"
+
+#: src/interface.c:157
+msgid "Display program name and copyright information"
+msgstr ""
+
+#. gtk_container_set_border_width (GTK_CONTAINER (main_window), 8);
+#: src/interface.c:164 src/interface.c:1221 src/wv_editors.c:695
+#: src/wv_editors.c:767 src/audio.c:121 src/audio.c:329
+msgid "Slider Wave Editor"
+msgstr ""
+
+#: src/interface.c:205
+msgid "Save As"
+msgstr "Guardar como"
+
+#: src/interface.c:221 src/callbacks.c:79 src/callbacks.c:395
+#: src/callbacks.c:422
 msgid "Play"
 msgstr "Jugar"
 
-#: src/interface.c:130
-msgid "Stop"
-msgstr "Acabar"
-
-#: src/interface.c:139 src/interface.c:324
+#: src/interface.c:237 src/interface.c:419
 msgid "Fundamental Set: "
 msgstr "Grupo Fundamento: "
 
-#: src/interface.c:308
+#: src/interface.c:401
 msgid "1st Harmonic Drop"
 msgstr "Poner El 1o Armónica"
 
 # Pensé usar «ampliarses» por la palabra amplitudes en Español, pero no
 # soy seguro que es una idea buena.
-#: src/interface.c:314 src/interface.c:775
+#: src/interface.c:409 src/interface.c:882
 msgid "Multiply Amplitudes"
 msgstr "Multiplicar Los Amplitudes"
 
-#: src/interface.c:329 src/interface.c:384 src/interface.c:441
-#: src/interface.c:472 src/interface.c:520
+#: src/interface.c:424 src/interface.c:478 src/interface.c:535
+#: src/interface.c:566 src/interface.c:613
 msgid "Add"
 msgstr "Añadir"
 
-#: src/interface.c:334 src/interface.c:389 src/interface.c:446
-#: src/interface.c:477 src/interface.c:525
+#: src/interface.c:429 src/interface.c:483 src/interface.c:540
+#: src/interface.c:571 src/interface.c:618
 msgid "Remove"
 msgstr "Remover"
 
-#: src/interface.c:352
+#: src/interface.c:447
 msgid "Fundamental Frequency: "
 msgstr "Frequencia Fundamenta: "
 
-#: src/interface.c:379 src/interface.c:515
+#: src/interface.c:473 src/interface.c:608
 msgid "Precision Slider: "
 msgstr "Deslizador Precisión: "
 
-#: src/interface.c:420
+#: src/interface.c:514
 msgid "Harmonic "
 msgstr "Armónica "
 
-#: src/interface.c:436
+#: src/interface.c:530
 msgid "Harmonic Window: "
 msgstr "Ventana Armónica: "
 
-#: src/interface.c:467
+#: src/interface.c:561
 msgid "Harmonic: "
 msgstr "Armónica: "
 
-#: src/interface.c:491
+#: src/interface.c:585
 msgid "Amplitude: "
 msgstr "Amplitud: "
 
-#: src/interface.c:790
+#: src/interface.c:899
 msgid "Maximum amplitude: "
 msgstr "Amplitud máximo: "
 
-#: src/callbacks.c:173
+#: src/interface.c:1151
+msgid "Slider Wave Editor Manual"
+msgstr ""
+
+#: src/interface.c:1226
+msgid ""
+"Slider is an interactive program designed to help you synthesize sound "
+"effects by building them from harmonics and by combining multiple non-"
+"harmonic sine waves."
+msgstr ""
+
+#: src/interface.c:1230
+msgid "About Slider Wave Editor"
+msgstr ""
+
+#: src/callbacks.c:107
+msgid ""
+"<b><big>Save changes to the current file before closing?</big></b>\n"
+"\n"
+"If you close without saving, your changes will be discarded."
+msgstr ""
+"<b><big>¿Desea guardar los cambios antes de cerrar?</big></b>\n"
+"\n"
+"Si cierra sin guardar se perderán los cambios realizados."
+
+#: src/callbacks.c:110
+msgid "Close _without saving"
+msgstr "Cerrar _sin guardar"
+
+#: src/callbacks.c:114
+msgid ""
+"<b><big>Save changes to the current file before continuing?</big></b>\n"
+"\n"
+"If you continue without saving, your changes will be discarded."
+msgstr ""
+"<b><big>¿Desea guardar los cambios antes de continuar?</big></b>\n"
+"\n"
+"Si continua sin guardar se perderán los cambios realizados."
+
+#: src/callbacks.c:117
+msgid "Continue _without saving"
+msgstr "Continuar _sin guardar"
+
+#: src/callbacks.c:152
 msgid "Save File"
 msgstr "Guardar Archivo"
 
-#: src/callbacks.c:197
-msgid "Export File"
-msgstr "Exportar Archivo"
+#: src/callbacks.c:158
+msgid "Slider Project Files"
+msgstr ""
 
-#: src/callbacks.c:223 src/callbacks.c:236
-#, c-format
-msgid "Sorry, but playback is not yet supported."
-msgstr "Lo siento, para jugar el sonido no es suporte."
+#: src/callbacks.c:208
+msgid "Open File"
+msgstr "Guardar Archivo"
 
-#: src/callbacks.c:224 src/callbacks.c:237
-msgid "Not implemented"
-msgstr "No lleva a cabo"
+#: src/callbacks.c:354
+msgid "Export Nyquist File"
+msgstr "Exportar Archivo de Nyquist"
 
-#: src/support.c:123 src/support.c:147
+#: src/callbacks.c:359
+msgid "_Export"
+msgstr "_Exportar"
+
+#: src/callbacks.c:386 src/callbacks.c:413
+msgid "Stop"
+msgstr "Acabar"
+
+#: src/support.c:132 src/support.c:159
 #, c-format
 msgid "Couldn't find pixmap file: %s"
 msgstr "No encontré archivo de pixmap: %s"
 
-#: src/wv_editors.c:607
+#: src/wv_editors.c:592
+#, c-format
+msgid ""
+"<b><big>An error occurred while saving your file.</big></b>\n"
+"\n"
+"%s"
+msgstr ""
+
+#: src/wv_editors.c:622
 msgid ""
 "; This is a Nyquist Lisp file.\n"
 "; You can use this with Audacity to generate a waveform.\n"
@@ -123,25 +271,103 @@ msgstr ""
 "; entonces vas a \"Effect > Nyquist Prompt...\" y pegas los contenidos\n"
 "; de este archivo.\n"
 
-#: src/wv_editors.c:850
-msgid ""
-"You must not have any fundamental frequencies that are harmonics of each "
-"other."
-msgstr ""
-"No debes tener nadas frequencias fundamentas que son armónicas de la una de "
-"otro."
-
-#: src/wv_editors.c:855
-msgid "User error"
-msgstr "Error de usuario"
-
-#. Translators: this message is only shown if the total number
-#. of points exceeds 1000.
-#: src/wv_editors.c:891
+#: src/wv_editors.c:655
 #, c-format
-msgid "Are you sure you want to sample %u points?"
-msgstr "¿Eres seguro que tú desees probar %u puntos?"
+msgid ""
+"<b><big>An error occurred while exporting your file.</big></b>\n"
+"\n"
+"%s"
+msgstr ""
 
-#: src/wv_editors.c:898
-msgid "Confirm"
-msgstr "Confirmar"
+#: src/wv_editors.c:692
+#, c-format
+msgid ""
+"<b><big>Your file could not be opened.</big></b>\n"
+"\n"
+"%s"
+msgstr ""
+
+#: src/wv_editors.c:765
+#, c-format
+msgid ""
+"<b><big>A syntax error was found in your file.</big></b>\n"
+"\n"
+"A blank template will be loaded instead."
+msgstr ""
+
+#: src/wv_editors.c:1008
+#, c-format
+msgid ""
+"<b><big>Are you sure you want to sample %u points?</big></b>\n"
+"\n"
+"This may take a while, and Slider will be unresponsive until the computation "
+"completes."
+msgstr ""
+
+#: src/audio.c:119
+#, c-format
+msgid ""
+"<b><big>An audio error occurred.</big></b>\n"
+"\n"
+"%s"
+msgstr ""
+
+#: src/audio.c:288
+msgid "Failed to open session with JACK."
+msgstr ""
+
+#: src/audio.c:290
+msgid "Unable to connect to JACK server."
+msgstr ""
+
+#: src/audio.c:302
+msgid "No more output ports available."
+msgstr ""
+
+#: src/audio.c:307
+msgid "Cannot activate client."
+msgstr ""
+
+#: src/audio.c:326
+#, c-format
+msgid ""
+"<b><big>An error occurred while initializing JACK.</big></b>\n"
+"\n"
+"%s"
+msgstr ""
+
+#: src/audio.c:401
+#, c-format
+msgid ""
+"<b><big>Slider was disconnected from JACK.</big></b>\n"
+"\n"
+"You will have to save your work and restart Slider to reconnect."
+msgstr ""
+
+#: src/audio.c:424
+#, c-format
+msgid "Sorry, but playback is not supported in this version."
+msgstr "Lo siento, para jugar el sonido no es suporte en este versión."
+
+#: src/audio.c:425
+msgid "Not implemented"
+msgstr "No lleva a cabo"
+
+#~ msgid "Sound Studio"
+#~ msgstr "Estudio del Sonido"
+
+#~ msgid ""
+#~ "You must not have any fundamental frequencies that are harmonics of each "
+#~ "other."
+#~ msgstr ""
+#~ "No debes tener nadas frequencias fundamentas que son armónicas de la una "
+#~ "de otro."
+
+#~ msgid "User error"
+#~ msgstr "Error de usuario"
+
+#~ msgid "Are you sure you want to sample %u points?"
+#~ msgstr "¿Eres seguro que tú desees probar %u puntos?"
+
+#~ msgid "Confirm"
+#~ msgstr "Confirmar"
