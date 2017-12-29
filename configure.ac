@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-# Copyright (C) 2011, 2012, 2013 Andrew Makousky
+# Copyright (C) 2011, 2012, 2013, 2017 Andrew Makousky
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-AC_INIT(slider, 0.1.3)
+AC_INIT(slider, 0.1.4)
 AC_CONFIG_AUX_DIR(build-aux)
 AC_CANONICAL_HOST
 AM_INIT_AUTOMAKE

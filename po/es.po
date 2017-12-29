@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Slider 1.0\n"
 "Report-Msgid-Bugs-To: andrew@home-dell-2300\n"
-"POT-Creation-Date: 2013-08-03 08:37-0500\n"
+"POT-Creation-Date: 2017-12-28 19:07-0600\n"
 "PO-Revision-Date: 2013-06-13 23:46-0500\n"
 "Last-Translator: <andrew@example.com>\n"
 "Language-Team: Spanish\n"
@@ -115,6 +115,11 @@ msgstr ""
 #: src/interface.c:164 src/interface.c:1221 src/wv_editors.c:695
 #: src/wv_editors.c:767 src/audio.c:121 src/audio.c:329
 msgid "Slider Wave Editor"
+msgstr ""
+
+#: src/interface.c:188
+#, c-format
+msgid "building menus failed: %s"
 msgstr ""
 
 #: src/interface.c:205
@@ -225,7 +230,7 @@ msgstr "Continuar _sin guardar"
 msgid "Save File"
 msgstr "Guardar Archivo"
 
-#: src/callbacks.c:158
+#: src/callbacks.c:158 src/callbacks.c:214
 msgid "Slider Project Files"
 msgstr ""
 
@@ -295,7 +300,7 @@ msgid ""
 "A blank template will be loaded instead."
 msgstr ""
 
-#: src/wv_editors.c:1008
+#: src/wv_editors.c:1004
 #, c-format
 msgid ""
 "<b><big>Are you sure you want to sample %u points?</big></b>\n"

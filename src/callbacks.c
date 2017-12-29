@@ -1,6 +1,6 @@
 /* GTK+ widget signal handlers.
 
-Copyright (C) 2011, 2012, 2013 Andrew Makousky
+Copyright (C) 2011, 2012, 2013, 2017 Andrew Makousky
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -174,7 +174,6 @@ save_as (void)
       last_folder = gtk_file_chooser_get_current_folder
 	                   (GTK_FILE_CHOOSER (dialog));
       gtk_widget_destroy (dialog);
-      g_free(loaded_fname); loaded_fname = NULL;
       if (filename_len <= 5 ||
 	  strcmp(&filename[filename_len-5], ".sliw"))
 	{
@@ -189,6 +188,7 @@ save_as (void)
 	  return FALSE;
 	}
       file_modified = FALSE;
+      g_free(loaded_fname); loaded_fname = NULL;
       loaded_fname = filename;
       return TRUE;
     }
@@ -211,7 +211,7 @@ open_file (void)
 				 GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 				 GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 				 NULL);
-  gtk_file_filter_set_name (filter, "Slider Project Files");
+  gtk_file_filter_set_name (filter, _("Slider Project Files"));
   gtk_file_filter_add_pattern (filter, "*.sliw");
   gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), filter);
   if (last_folder != NULL)

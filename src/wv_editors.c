@@ -1,6 +1,6 @@
 /* Functions for the wave editors.
 
-Copyright (C) 2011, 2012, 2013 Andrew Makousky
+Copyright (C) 2011, 2012, 2013, 2017 Andrew Makousky
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -668,9 +668,9 @@ export_sliw_project (char *filename)
  * files are plain text files, typically saved with the .txt
  * extension.  Note that parse error checking in this function is
  * minimal, and non well-formed documents can result in false
- * successful return status with incorrect data.  @param filename the
- * name of the file to load @return TRUE on successful load, FALSE on
- * error.
+ * successful return status with incorrect data.
+ * @param filename the name of the file to load
+ * @return TRUE on successful load, FALSE on error.
  */
 gboolean
 load_sliw_project (char *filename)
@@ -777,10 +777,6 @@ load_sliw_project (char *filename)
 
 /**
  * Creates a new Slider Wave Editor project.
- *
- * Since this program currently only supports loading files at
- * startup, this function should only be called at the start of the
- * program.
  */
 void
 new_sliw_project (void)

@@ -185,7 +185,7 @@ create_main_window (void)
 				gtk_ui_manager_get_accel_group (merge));
     if (!gtk_ui_manager_add_ui_from_string (merge, ui_info, -1, &error))
       {
-	g_message ("building menus failed: %s", error->message);
+	g_message (_("building menus failed: %s"), error->message);
 	g_error_free (error);
       }
     menu_bar = gtk_ui_manager_get_widget (merge, "/MenuBar");

@@ -1,8 +1,11 @@
 Slider NEWS -- history of user visible changes
 
-Copyright (C) 2011, 2012, 2013 Andrew Makousky
+Copyright (C) 2011, 2012, 2013, 2017 Andrew Makousky
 All rights reserved.
 See the end of this file for license conditions.
+
+* Slider 0.1.4
+  Only minor bug fixes at the source code level.
 
 * Slider 0.1.3
   Audio playback added.  Binary relocation support added, for both

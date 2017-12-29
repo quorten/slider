@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: andrew@home-dell-2300\n"
-"POT-Creation-Date: 2013-08-03 08:37-0500\n"
+"POT-Creation-Date: 2017-12-28 19:07-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -117,6 +117,11 @@ msgstr ""
 msgid "Slider Wave Editor"
 msgstr ""
 
+#: src/interface.c:188
+#, c-format
+msgid "building menus failed: %s"
+msgstr ""
+
 #: src/interface.c:205
 msgid "Save As"
 msgstr ""
@@ -217,7 +222,7 @@ msgstr ""
 msgid "Save File"
 msgstr ""
 
-#: src/callbacks.c:158
+#: src/callbacks.c:158 src/callbacks.c:214
 msgid "Slider Project Files"
 msgstr ""
 
@@ -282,7 +287,7 @@ msgid ""
 "A blank template will be loaded instead."
 msgstr ""
 
-#: src/wv_editors.c:1008
+#: src/wv_editors.c:1004
 #, c-format
 msgid ""
 "<b><big>Are you sure you want to sample %u points?</big></b>\n"
